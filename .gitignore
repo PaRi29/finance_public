@@ -1,0 +1,5 @@
+
+alpaca_short_strategy/.env
+alpaca_dividend_strategy/.env
+simulator/.env
+.env

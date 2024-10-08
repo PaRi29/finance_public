@@ -1,0 +1,344 @@
+[
+    {
+        "Ticker": "AAON",
+        "Company": "AAON",
+        "Dividend": "$0.08",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "GOLF",
+        "Company": "Acushnet",
+        "Dividend": "$0.2150",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "AL",
+        "Company": "Air Lease",
+        "Dividend": "$0.21",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "AMCR",
+        "Company": "Amcor",
+        "Dividend": "$0.1250",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "AMSF",
+        "Company": "AMERISAFE",
+        "Dividend": "$0.37",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "AJG",
+        "Company": "Arthur J. Gallagher & Co.",
+        "Dividend": "$0.60",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "BAC",
+        "Company": "Bank of America",
+        "Dividend": "$0.26",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "BOTJ",
+        "Company": "Bank of the James Financial Group",
+        "Dividend": "$0.10",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "BKNG",
+        "Company": "Booking",
+        "Dividend": "$8.75",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "CHRW",
+        "Company": "C.H. Robinson Worldwide",
+        "Dividend": "$0.62",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "CNI",
+        "Company": "Canadian National Railway",
+        "Dividend": "$0.6140",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "CIX",
+        "Company": "CompX International",
+        "Dividend": "$2.00",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "CIX",
+        "Company": "CompX International",
+        "Dividend": "$0.30",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "CVLG",
+        "Company": "Covenant Logistics Group",
+        "Dividend": "$0.11",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "EXPO",
+        "Company": "Exponent",
+        "Dividend": "$0.28",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "FRME",
+        "Company": "First Merchants",
+        "Dividend": "$0.35",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "FLO",
+        "Company": "Flowers Foods",
+        "Dividend": "$0.24",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "FFIC",
+        "Company": "Flushing Financial",
+        "Dividend": "$0.22",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "GM",
+        "Company": "General Motors",
+        "Dividend": "$0.12",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "GPC",
+        "Company": "Genuine Parts",
+        "Dividend": "$1.00",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "HUBG",
+        "Company": "Hub Group",
+        "Dividend": "$0.1250",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "ICFI",
+        "Company": "ICF International",
+        "Dividend": "$0.14",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "III",
+        "Company": "Information Services Group",
+        "Dividend": "$0.0450",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "JKHY",
+        "Company": "Jack Henry & Associates",
+        "Dividend": "$0.55",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "KMB",
+        "Company": "Kimberly-Clark",
+        "Dividend": "$1.22",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "KNX",
+        "Company": "Knight-Swift Transportation",
+        "Dividend": "$0.16",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "KRO",
+        "Company": "Kronos Worldwide",
+        "Dividend": "$0.05",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "LHX",
+        "Company": "L3Harris Technologies",
+        "Dividend": "$1.16",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "LBRT",
+        "Company": "Liberty Energy",
+        "Dividend": "$0.07",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "MAIN",
+        "Company": "Main Street Capital",
+        "Dividend": "$0.2450",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "MAIN",
+        "Company": "Main Street Capital",
+        "Dividend": "$0.2450",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "MAIN",
+        "Company": "Main Street Capital",
+        "Dividend": "$0.30",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "MBWM",
+        "Company": "Mercantile Bank",
+        "Dividend": "$0.36",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "MLI",
+        "Company": "Mueller Industries",
+        "Dividend": "$0.20",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "NAVI",
+        "Company": "Navient",
+        "Dividend": "$0.16",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "NTES",
+        "Company": "NetEase",
+        "Dividend": "$0.4350",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "NYCB",
+        "Company": "New York Community Bancorp",
+        "Dividend": "$0.01",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "NL",
+        "Company": "NL Industries",
+        "Dividend": "$0.43",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "NL",
+        "Company": "NL Industries",
+        "Dividend": "$0.43",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "NL",
+        "Company": "NL Industries",
+        "Dividend": "$0.08",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "NL",
+        "Company": "NL Industries",
+        "Dividend": "$0.43",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "NTRS",
+        "Company": "Northern Trust",
+        "Dividend": "$0.75",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "ORI",
+        "Company": "Old Republic International",
+        "Dividend": "$1.06",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "OUT",
+        "Company": "OUTFRONT Media",
+        "Dividend": "$0.30",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "PEP",
+        "Company": "PepsiCo",
+        "Dividend": "$1.3550",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "PUK",
+        "Company": "Prudential",
+        "Dividend": "$0.1368",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "STRA",
+        "Company": "Strategic Education",
+        "Dividend": "$0.60",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "TPR",
+        "Company": "Tapestry",
+        "Dividend": "$0.35",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "TGNA",
+        "Company": "TEGNA",
+        "Dividend": "$0.1250",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "TT",
+        "Company": "Trane Technologies",
+        "Dividend": "$0.84",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "TCBK",
+        "Company": "TriCo Bancshares",
+        "Dividend": "$0.33",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "TRST",
+        "Company": "TrustCo Bank Corp NY",
+        "Dividend": "$0.36",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "UNF",
+        "Company": "UniFirst",
+        "Dividend": "$0.33",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "UNTY",
+        "Company": "Unity Bancorp",
+        "Dividend": "$0.13",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "VHI",
+        "Company": "Valhi",
+        "Dividend": "$0.08",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "VABK",
+        "Company": "Virginia National Bankshares",
+        "Dividend": "$0.33",
+        "Ex-Date": "9/6/2024"
+    },
+    {
+        "Ticker": "WSBC",
+        "Company": "WesBanco",
+        "Dividend": "$0.36",
+        "Ex-Date": "9/6/2024"
+    }
+]

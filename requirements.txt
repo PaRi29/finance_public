@@ -1,0 +1,11 @@
+requests
+beautifulsoup4
+pandas
+yfinance
+pytz
+python-dotenv
+alpaca-trade-api
+cloudscraper
+google
+base64
+protobuf

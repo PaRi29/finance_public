@@ -1,0 +1,1 @@
+from .future_week_extractor import DividendDataExtractor
