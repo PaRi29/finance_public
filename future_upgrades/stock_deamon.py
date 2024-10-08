@@ -166,8 +166,8 @@ class StockSearcher:
                     'Yield Price': data[2],
                     'Has Pre': data[3]
                 })
-        folders = ['finance/alpaca_dividend_strategy',
-                   'finance/alpaca_short_strategy', 'finance/simulator']
+        folders = ['finance_public/alpaca_dividend_strategy',
+                   'finance_public/alpaca_short_strategy']
         for folder in folders:
             shutil.copy(output_file_path, os.path.join(
                 folder, 'stock_to_buy.csv'))

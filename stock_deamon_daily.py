@@ -241,8 +241,8 @@ class DividendDataExtractor:
                         'Adjusted_Yield': final_stock['Adjusted_Yield'],
                         'Has Pre': final_stock['Has Pre']
                     })
-                folders = ['finance/alpaca_dividend_strategy',
-                           'finance/alpaca_short_strategy']
+                folders = ['finance_public/alpaca_dividend_strategy',
+                           'finance_public/alpaca_short_strategy']
                 for folder in folders:
                     shutil.copy(output_file_path, os.path.join(
                         folder, 'stock_to_buy.csv'))
@@ -258,8 +258,8 @@ class DividendDataExtractor:
                 # Save empty CSV
                 empty_df.to_csv(output_file_path, index=False)
 
-                folders = ['finance/alpaca_dividend_strategy',
-                           'finance/alpaca_short_strategy', 'finance/simulator']
+                folders = ['finance_public/alpaca_dividend_strategy',
+                           'finance_public/alpaca_short_strategy']
                 for folder in folders:
                     # Save empty CSV in each folder
                     empty_df.to_csv(os.path.join(
