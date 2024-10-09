@@ -118,7 +118,7 @@ class DividendTradingSimulator:
 
             logging.info((self.budget))
             shares_sold = self.budget // (self.sell_price)
-            limit_price= self.sell_price*0.98
+            limit_price= self.sell_price*0.9
             rounded_limit_price = round(limit_price, 2)
 
 
@@ -275,7 +275,7 @@ class DividendTradingSimulator:
         """Simulate short selling monitoring stop loss, stop gain, or market close."""
         borrow_cost = shares_sold * initial_price * self.short_borrow_rate
         stop_gain = -0.5 * self.dividend_per_action / initial_price
-        stop_loss = 0.02
+        stop_loss = 0.01
         market_close_time = datetime.time(21, 50)
 
         while not self.stop_simulation:

@@ -144,16 +144,16 @@ class DividendTradingSimulator:
 
 
             self.open_price = self.get_stock_price_post(self.stock_to_buy)
+            #da sistemare qua per il prezzo di partenza 
             limit_price= self.open_price*0.9
             rounded_limit_price = round(limit_price, 2)
-
 
             shares_bought = self.budget // (self.open_price)
             cost = shares_bought * self.open_price + self.commission            
             status=self.alpaca_buy_after_hours(self.stock_to_buy,shares_bought,rounded_limit_price)
 
             self.current_simulation_day += 1
-            limit_price= self.open_price*0.98
+            limit_price= self.open_price*0.9
             rounded_limit_price = round(limit_price, 2)
 
             if status:
@@ -185,7 +185,7 @@ class DividendTradingSimulator:
 
                     self.open_price = self.get_stock_price_pre(self.stock_to_buy)
                     shares_bought = self.budget // (self.open_price)
-                    limit_price= self.open_price*0.985
+                    limit_price= self.open_price*0.9
                     rounded_limit_price = round(limit_price, 2)
                     self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
                     time.sleep(10)
@@ -484,7 +484,7 @@ class DividendTradingSimulator:
         """Simulate short selling monitoring stop loss, stop gain, or market close."""
         borrow_cost = shares_sold * initial_price * self.short_borrow_rate
         stop_gain = -0.5 * self.dividend_per_action / initial_price
-        stop_loss = 0.02
+        stop_loss = 0.01
         market_close_time = datetime.time(21, 50)
 
         while not self.stop_simulation:
