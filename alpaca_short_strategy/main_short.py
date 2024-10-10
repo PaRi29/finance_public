@@ -29,6 +29,7 @@ class DividendTradingSimulator:
     def __init__(self, ALPACA_API_KEY,API_SECRET,ALPACA_ENDPOINT, simulation_days=30, commission=0, short_borrow_rate=0.003):
         self.ALPACA_API=tradeapi.REST(ALPACA_API_KEY, API_SECRET, ALPACA_ENDPOINT, api_version='v2')  
         self.budget = float(self.ALPACA_API.get_account().cash)- 2000
+
         self.simulation_days = simulation_days
         self.current_simulation_day = 0
         self.transactions = []
@@ -53,6 +54,7 @@ class DividendTradingSimulator:
         self.pricing_data_message = self.create_pricing_data_message()
         self.stop_simulation = False  # Flag to stop the simulation
         self.tax_rate = 0.27  # 27% tax rate
+        self.filled_price = None
 
     def run_simulation(self):
         self.initialize_csv()
@@ -95,6 +97,14 @@ class DividendTradingSimulator:
             logging.info(f"{self.stock_to_sell}, {price_}, {self.dividend_per_action}, {self.has_pre}")
 
 
+            close_market_time=self.get_next_time(hour=1, minute=59)
+            wait_time = (close_market_time - datetime.datetime.now(self.italy_tz)).total_seconds()
+            if wait_time > 0:
+                logging.info(f"In attesa fino alle {close_market_time} per reperire l'ultimo prezzo...")
+                time.sleep(wait_time)
+            self.sell_price = float(self.get_stock_price_post(self.stock_to_sell))
+
+
             sell_time = self.get_next_time(hour=10, minute=0)
             wait_time = (sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
@@ -110,17 +120,10 @@ class DividendTradingSimulator:
                     break
                 time.sleep(0.5)
 
-            p_price=self.get_stock_price_pre(self.stock_to_sell)   
-            if p_price!= None:
-                self.sell_price = float(p_price)
-            else:
-                self.sell_price = float(self.get_stock_price_intraday(self.stock_to_sell))
-
-            logging.info((self.budget))
             shares_sold = self.budget // (self.sell_price)
-            limit_price= self.sell_price*0.9
-            rounded_limit_price = round(limit_price, 2)
 
+            limit_price= self.sell_price - 0.5(self.dividend_per_action/self.sell_price) #provo a vedere ad un prezzo che è quello originale meno il 50% del dividendo
+            rounded_limit_price = round(limit_price, 2)
 
             try:
                 q_=self.short_sell_pre_hours(self.stock_to_sell,shares_sold,rounded_limit_price)
@@ -131,6 +134,9 @@ class DividendTradingSimulator:
                     logging.info("sleeping 8 hours")
                     time.sleep(60*60*8)
                     continue
+                
+                else:
+                    self.filled_price=float(q_)
             except:
                     logging.info("saltando il giorno")
                     self.telegram_bot_sendtext("la vendita allo scoperto giornaliera non ha funzionato")
@@ -139,18 +145,16 @@ class DividendTradingSimulator:
                     time.sleep(60*60*8)
                     continue
                 
-
-            logging.info(f"vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.sell_price:.2f} alle {sell_time}")
+            logging.info(f"vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.filled_price:.2f} alle {sell_time}")
             
-            self.telegram_bot_sendtext(f"Vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.sell_price:.2f} alle {sell_time}")
+            self.telegram_bot_sendtext(f"Vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.filled_price:.2f} alle {sell_time}")
 
-
-            target_time = self.get_next_time(hour=15, minute=45)#in ogni caso dorme fino alle 15:30 tanto lo short è già iniziato 
+            target_time = self.get_next_time(hour=15, minute=33)#in ogni caso dorme fino alle 15:30 tanto lo short è già iniziato 
             self.sleep_until(target_time)
             logging.info(f"In attesa fino alle {target_time} per la vendita...")
 
+            asyncio.run(self.run_short_selling(self.stock_to_sell,self.filled_price,shares_sold))
 
-            asyncio.run(self.run_short_selling(self.stock_to_sell,self.sell_price,shares_sold))
             logging.info(f"comprando {shares_sold} azioni di {self.stock_to_sell} a ${self.buy_price:.2f} alle {sell_time}")
             self.telegram_bot_sendtext(f"comprando {shares_sold} azioni di {self.stock_to_sell} a ${self.buy_price:.2f} alle {sell_time}")
 
@@ -274,7 +278,7 @@ class DividendTradingSimulator:
     async def simulate_short_selling(self, symbol, initial_price, shares_sold):
         """Simulate short selling monitoring stop loss, stop gain, or market close."""
         borrow_cost = shares_sold * initial_price * self.short_borrow_rate
-        stop_gain = -0.5 * self.dividend_per_action / initial_price
+        stop_gain = -0.9 * self.dividend_per_action / self.sell_price
         stop_loss = 0.01
         market_close_time = datetime.time(21, 50)
 
@@ -489,6 +493,37 @@ class DividendTradingSimulator:
             return pre_market_price
         else:
             return None
+        
+    def get_stock_price_post(self, symbol):
+        url = f"https://finance.yahoo.com/quote/{symbol}/"
+
+        headers = {
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
+        'cache-control': 'max-age=0',
+        'cookie': 'GUC=AQABCAFnBjRnNEIebARG&s=AQAAAFQYrj8Z&g=ZwTq1w; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; PRF=t%3DTSLA%252BFNLC%252BNVDA%252BGAIN%252BTWO%252BCABO%252BCHMI%252BCOF%252BKC%253DF%252BPRG%252BAHH%252BTDW%252BBCSF%252BE%252BAAPL',
+        'priority': 'u=0, i',
+        'sec-ch-ua': '"Brave";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-user': '?1',
+        'sec-gpc': '1',
+        'upgrade-insecure-requests': '1',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            return None
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        post_market_price = soup.find('fin-streamer', {'data-field': 'postMarketPrice'})
+        if post_market_price:
+            return post_market_price['data-value']
+        else:
+            return None
 
 
     def get_next_sell_time(self):
@@ -545,9 +580,11 @@ class DividendTradingSimulator:
         short_order_id = short_order.id
         for _ in range(3600):  # Check every second for up to 60 seconds
             if self.is_order_filled(short_order_id):
-                logging.info("Short sell order filled successfully.")
-                return True
+                filled_order = self.ALPACA_API.get_order(short_order_id)  # Fetch the filled order details
+                logging.info(f"Short sell order filled successfully at {filled_order.filled_avg_price}.")
+                return filled_order.filled_avg_price  # Return the filled price
             time.sleep(1)
+
         logging.info("Failed to fill short sell order within the time limit.")
         return False
 

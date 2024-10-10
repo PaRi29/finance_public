@@ -71,8 +71,8 @@ class DividendTradingSimulator:
             
             self.tomorrow_date_number = (datetime.datetime.now(
                 self.italy_tz) + datetime.timedelta(days=1)).strftime('%b %d, %Y')
+            
             stock_info = self.get_stock_info_for_tomorrow()
-
             if stock_info is None and datetime.datetime.now(self.italy_tz).weekday() != 6:
 
                 if datetime.datetime.now(self.italy_tz).weekday() <4:
@@ -132,20 +132,19 @@ class DividendTradingSimulator:
                           self.stock_to_buy, price_,
                           self.dividend_per_action, self.has_pre)
 
-            buy_time = self.get_next_time(hour=1, minute=50)
+            buy_time = self.get_next_time(hour=1, minute=00)
             wait_time = (
                 buy_time - datetime.datetime.now(self.italy_tz)).total_seconds()
             logging.info(wait_time)
-
 
             if wait_time > 0:
                 logging.info(f"In attesa fino alle {buy_time} per l'acquisto...")
                 time.sleep(wait_time)
 
 
-            self.open_price = self.get_stock_price_post(self.stock_to_buy)
-            #da sistemare qua per il prezzo di partenza 
-            limit_price= self.open_price*0.9
+            self.open_price = float(self.get_stock_price_post(self.stock_to_buy))
+            print(self.open_price) 
+            limit_price= self.open_price*0.98
             rounded_limit_price = round(limit_price, 2)
 
             shares_bought = self.budget // (self.open_price)
@@ -153,7 +152,7 @@ class DividendTradingSimulator:
             status=self.alpaca_buy_after_hours(self.stock_to_buy,shares_bought,rounded_limit_price)
 
             self.current_simulation_day += 1
-            limit_price= self.open_price*0.9
+            limit_price= self.open_price*0.98
             rounded_limit_price = round(limit_price, 2)
 
             if status:
@@ -183,9 +182,9 @@ class DividendTradingSimulator:
                             break
                         time.sleep(0.5)
 
-                    self.open_price = self.get_stock_price_pre(self.stock_to_buy)
+                    self.open_price = float(self.get_stock_price_pre(self.stock_to_buy))
                     shares_bought = self.budget // (self.open_price)
-                    limit_price= self.open_price*0.9
+                    limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
                     self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
                     time.sleep(10)
@@ -205,9 +204,9 @@ class DividendTradingSimulator:
                             break
                         time.sleep(0.5)
 
-                    self.open_price = self.get_stock_price_pre(self.stock_to_buy)
+                    self.open_price = float(self.get_stock_price_pre(self.stock_to_buy))
                     shares_bought = self.budget // (self.open_price)
-                    limit_price= self.open_price*0.9
+                    limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
 
 
@@ -226,9 +225,9 @@ class DividendTradingSimulator:
                     time.sleep(wait_time)
                     time.sleep(1)
 
-                    self.open_price = self.get_stock_price_intraday(self.stock_to_buy)
+                    self.open_price = float(self.get_stock_price_intraday(self.stock_to_buy))
                     shares_bought = self.budget // (self.open_price)
-                    limit_price= self.open_price*0.9
+                    limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
 
 
@@ -245,14 +244,14 @@ class DividendTradingSimulator:
                     time.sleep(wait_time)
                     time.sleep(1)
 
-                    self.open_price = self.get_stock_price_intraday(self.stock_to_buy)
+                    self.open_price = float(self.get_stock_price_intraday(self.stock_to_buy))
                     shares_bought = self.budget // (self.open_price)
-                    limit_price= self.open_price*0.9
+                    limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
 
                     self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
 
-            sell_time = self.get_next_time(hour=15, minute=45)
+            sell_time = self.get_next_time(hour=15, minute=33)
             wait_time = (
                 sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
@@ -422,34 +421,30 @@ class DividendTradingSimulator:
         url = f"https://finance.yahoo.com/quote/{symbol}/"
 
         headers = {
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
-            'cache-control': 'max-age=0',
-            'cookie': 'GUC=AQABCAFm0cNnA0IebARG&s=AQAAANll0iRa&g=ZtB-1Q; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHD0WYDZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAp2gCGvmSB0GzU9iM4gybEg; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHD0WYDZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAp2gCGvmSB0GzU9iM4gybEg; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHD0WYDZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAp2gCGvmSB0GzU9iM4gybEg; PRF=t%3DTSLA%252BCHMI%252BCOF%252BKC%253DF%252BPRG%252BAHH%252BTDW%252BBCSF%252BE%252BAAPL%252BNVDA%252BRWT%252BTNSGF%252BLOGI%252BGHSI',
-            'priority': 'u=0, i',
-            'sec-ch-ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Brave";v="128"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'sec-fetch-dest': 'document',
-            'sec-fetch-mode': 'navigate',
-            'sec-fetch-site': 'same-origin',
-            'sec-fetch-user': '?1',
-            'sec-gpc': '1',
-            'upgrade-insecure-requests': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
+        'cache-control': 'max-age=0',
+        'cookie': 'GUC=AQABCAFnBjRnNEIebARG&s=AQAAAFQYrj8Z&g=ZwTq1w; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; PRF=t%3DTSLA%252BFNLC%252BNVDA%252BGAIN%252BTWO%252BCABO%252BCHMI%252BCOF%252BKC%253DF%252BPRG%252BAHH%252BTDW%252BBCSF%252BE%252BAAPL',
+        'priority': 'u=0, i',
+        'sec-ch-ua': '"Brave";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-user': '?1',
+        'sec-gpc': '1',
+        'upgrade-insecure-requests': '1',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
         }
-
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             return None
         soup = BeautifulSoup(response.text, 'html.parser')
-        pre_market_price_tag = soup.find('fin-streamer', {
-            'data-symbol': symbol,
-            'data-field': 'postMarketPrice'
-        })
-        if pre_market_price_tag:
-            pre_market_price = pre_market_price_tag.get('data-value')
-            return pre_market_price
+
+        post_market_price = soup.find('fin-streamer', {'data-field': 'postMarketPrice'})
+        if post_market_price:
+            return post_market_price['data-value']
         else:
             return None
 

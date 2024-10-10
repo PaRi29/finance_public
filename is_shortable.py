@@ -16,7 +16,6 @@ import base64
 from google.protobuf import descriptor_pool, message_factory, descriptor_pb2
 
 
-logging.basicConfig(filename='trading_simulator.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 from dotenv import load_dotenv
 import os
 
@@ -37,4 +36,4 @@ def is_easy_to_short( symbol):
     except:
         return False
 
-print(is_easy_to_short("FNLC"))
+print(is_easy_to_short("CIO"))

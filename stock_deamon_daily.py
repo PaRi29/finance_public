@@ -246,6 +246,8 @@ class DividendDataExtractor:
                 for folder in folders:
                     shutil.copy(output_file_path, os.path.join(
                         folder, 'stock_to_buy.csv'))
+                
+                os.remove(output_file_path)
                 print(f"Best stock saved to {output_file_path}")
                 self.telegram_bot_sendtext(
                     f"Best stock saved to {output_file_path}")
@@ -264,6 +266,8 @@ class DividendDataExtractor:
                     # Save empty CSV in each folder
                     empty_df.to_csv(os.path.join(
                         folder, 'stock_to_buy.csv'), index=False)
+                    
+                os.remove(output_file_path)
                 print("No stock found to save, empty file created in all folders.")
                 self.telegram_bot_sendtext(
                     f"No stock found to save, empty file created in all folders.")
