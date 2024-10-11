@@ -132,7 +132,7 @@ class DividendTradingSimulator:
                           self.stock_to_buy, price_,
                           self.dividend_per_action, self.has_pre)
 
-            buy_time = self.get_next_time(hour=1, minute=00)
+            buy_time = self.get_next_time(hour=21, minute=59)
             wait_time = (
                 buy_time - datetime.datetime.now(self.italy_tz)).total_seconds()
             logging.info(wait_time)
@@ -142,14 +142,15 @@ class DividendTradingSimulator:
                 time.sleep(wait_time)
 
 
-            self.open_price = float(self.get_stock_price_post(self.stock_to_buy))
+            self.open_price = float(self.get_stock_price_intraday(self.stock_to_buy))
             print(self.open_price) 
-            limit_price= self.open_price*0.98
+            limit_price= self.open_price*1.02
             rounded_limit_price = round(limit_price, 2)
 
+
             shares_bought = self.budget // (self.open_price)
-            cost = shares_bought * self.open_price + self.commission            
-            status=self.alpaca_buy_after_hours(self.stock_to_buy,shares_bought,rounded_limit_price)
+            cost = shares_bought * self.open_price + self.commission    
+            status=self.alpaca_buy_intraday(self.stock_to_buy,shares_bought)
 
             self.current_simulation_day += 1
             limit_price= self.open_price*0.98
@@ -657,16 +658,13 @@ class DividendTradingSimulator:
         except:
             return False
 
-    def alpaca_buy_after_hours(self, ticker, quantity,limit_price_sell):
-        # Place a market buy order
+    def alpaca_buy_intraday(self, ticker, quantity):
         order = self.ALPACA_API.submit_order(
         symbol=ticker,
         qty=quantity,
         side='buy',          # Close position by selling
-        type='limit',         # Limit order type
-        limit_price=limit_price_sell,
+        type='market',         # Limit order type
         time_in_force='day',  # Day order for extended hours
-        extended_hours=True   # Allows after-hours trading
         )  
         sell_order_id = order.id
         

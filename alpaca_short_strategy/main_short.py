@@ -122,7 +122,7 @@ class DividendTradingSimulator:
 
             shares_sold = self.budget // (self.sell_price)
 
-            limit_price= self.sell_price - 0.5(self.dividend_per_action/self.sell_price) #provo a vedere ad un prezzo che è quello originale meno il 50% del dividendo
+            limit_price= self.sell_price - 0.5*(self.dividend_per_action/self.sell_price) #provo a vedere ad un prezzo che è quello originale meno il 50% del dividendo
             rounded_limit_price = round(limit_price, 2)
 
             try:
