@@ -584,7 +584,7 @@ class DividendTradingSimulator:
 
 
 if __name__ == "__main__":
-    useless_file=["trading_simulator.log","dividend_trading_results.csv","nohup.out"]
+    useless_file=["trading_simulator.log","dividend_trading_results.csv"]
     for file in useless_file:
         try:
             os.remove(file)
