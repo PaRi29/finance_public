@@ -18,7 +18,7 @@ ALPACA_ENDPOINT = 'https://paper-api.alpaca.markets/'
 ALPACA_API_KEY = os.getenv('ALPACA_KEY')
 API_SECRET = os.getenv('ALPACA_SECRET')
 # 2024-09-13
-
+#TODO:modificare le funzione per trovare solamente la prima stock, indipendentemente dalle pre hours (?) da controllare 
 
 class DividendDataExtractor:
     def __init__(self):
