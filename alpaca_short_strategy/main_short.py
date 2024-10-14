@@ -591,7 +591,6 @@ if __name__ == "__main__":
         except:
             pass
         
-
     logging.basicConfig(filename='trading_simulator.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     load_dotenv()
     ALPACA_ENDPOINT='https://paper-api.alpaca.markets/'
