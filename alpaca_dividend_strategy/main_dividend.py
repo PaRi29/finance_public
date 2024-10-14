@@ -63,12 +63,18 @@ class DividendTradingSimulator:
         while self.current_simulation_day < self.simulation_days:
             self.is_position_closed=False
             self.is_short_open=False
-
-            self.stock_data = pd.read_csv("stock_to_buy.csv")
             logging.info(f"Giorno {self.current_simulation_day + 1}")
             self.telegram_bot_sendtext(
                 f"Giorno {self.current_simulation_day + 1}")
-            
+
+            start_time = self.get_next_time(hour=20, minute=0)
+            wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
+
+            if wait_time > 0:
+                time.sleep(wait_time)
+                time.sleep(3)
+
+            self.stock_data = pd.read_csv("stock_to_buy.csv")
             self.tomorrow_date_number = (datetime.datetime.now(
                 self.italy_tz) + datetime.timedelta(days=1)).strftime('%b %d, %Y')
             
@@ -80,7 +86,7 @@ class DividendTradingSimulator:
                         "Nessuno stock da comprare domani. Aspettando il giorno successivo...")
                     self.telegram_bot_sendtext(
                         "Nessuno stock da comprare domani. Aspettando il giorno successivo...")
-                    time.sleep(24 * 3600)  # Dorme per un giorno
+                    time.sleep(23 * 3600)  # Dorme per un giorno
                     self.current_simulation_day += 1
                     continue
 
@@ -98,7 +104,7 @@ class DividendTradingSimulator:
                             "Nessuno stock disponibile per lunedì. Aspettando il giorno successivo...")
                         self.telegram_bot_sendtext(
                             "Nessuno stock disponibile per lunedì. Aspettando il giorno successivo...")
-                        time.sleep(24 * 3600 * 3)  # Dorme per un giorno
+                        time.sleep(23 * 3600 * 3)  # Dorme per un giorno
                         self.current_simulation_day += 3
                         continue
 

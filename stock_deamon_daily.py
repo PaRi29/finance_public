@@ -147,7 +147,10 @@ class DividendDataExtractor:
                 df['Ex-Dividend Date'], format="%b %d, %Y")
             print("Ex-Dividend Date conversion successful")
 
-            df_filtered = df[df['Adjusted_Yield'] > 2]
+            print(df.sort_values(
+                by='Adjusted_Yield', ascending=False))
+            
+            df_filtered = df[df['Adjusted_Yield'] > 1.5]
             top_stocks = df_filtered.sort_values(
                 by='Adjusted_Yield', ascending=False)
 

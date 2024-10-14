@@ -62,7 +62,7 @@ class DividendTradingSimulator:
             logging.info(f"Giorno {self.current_simulation_day + 1}")
             self.telegram_bot_sendtext(f"Giorno {self.current_simulation_day + 1}")
 
-            start_time = self.get_next_time(hour=23, minute=0)
+            start_time = self.get_next_time(hour=20, minute=0)
             wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
             if wait_time > 0:
@@ -83,13 +83,13 @@ class DividendTradingSimulator:
                     if stock_info is None:
                         logging.info("Nessuno stock disponibile per lunedì. Aspettando il giorno successivo...")
                         self.telegram_bot_sendtext("Nessuno stock disponibile per lunedì. Aspettando il giorno successivo...")
-                        time.sleep(24 * 3600)  # Dorme per un giorno
-                        self.current_simulation_day += 1
+                        time.sleep(23 * 3600*3)  # Dorme per un giorno
+                        self.current_simulation_day += 3
                         continue
                 else:
                     logging.info("Nessuno stock da shortare domani. Aspettando il giorno successivo...")
                     self.telegram_bot_sendtext("Nessuno stock da shortare domani. Aspettando il giorno successivo...")
-                    time.sleep(24 * 3600)  # Dorme per un giorno
+                    time.sleep(23 * 3600)  # Dorme per un giorno
                     self.current_simulation_day += 1
                     continue
 
