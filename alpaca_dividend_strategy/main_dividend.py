@@ -626,10 +626,10 @@ class DividendTradingSimulator:
         return next_time
 
     def get_next_sell_time(self):
-        if self.has_pre == True:
+        if True: #self.has_pre == True:
             return self.get_next_time(hour=10, minute=0)
-        else:
-            return self.get_next_time(hour=15, minute=30)
+        #else:
+            #return self.get_next_time(hour=15, minute=30)
 
     def sleep_until(self, target_time):
         now = datetime.datetime.now(self.italy_tz)
