@@ -18,7 +18,6 @@ ALPACA_ENDPOINT = 'https://paper-api.alpaca.markets/'
 ALPACA_API_KEY = os.getenv('ALPACA_KEY')
 API_SECRET = os.getenv('ALPACA_SECRET')
 # 2024-09-13
-#
 
 
 class DividendDataExtractor:

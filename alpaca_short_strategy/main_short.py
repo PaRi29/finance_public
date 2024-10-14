@@ -13,17 +13,11 @@ import asyncio
 import websockets
 import json
 import base64
-from google.protobuf import descriptor_pool, message_factory, descriptor_pb2
-
-
-logging.basicConfig(filename='trading_simulator.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-from dotenv import load_dotenv
 import os
+from google.protobuf import descriptor_pool, message_factory, descriptor_pb2
+from dotenv import load_dotenv
 
-load_dotenv()
-ALPACA_ENDPOINT='https://paper-api.alpaca.markets/'
-ALPACA_API_KEY=os.getenv('ALPACA_KEY')
-API_SECRET=os.getenv('ALPACA_SECRET')
+
 
 class DividendTradingSimulator:
     def __init__(self, ALPACA_API_KEY,API_SECRET,ALPACA_ENDPOINT, simulation_days=30, commission=0, short_borrow_rate=0.003):
@@ -590,5 +584,20 @@ class DividendTradingSimulator:
 
 
 if __name__ == "__main__":
+    useless_file=["trading_simulator.log","dividend_trading_results.csv","nohup.out"]
+    for file in useless_file:
+        try:
+            os.remove(file)
+        except:
+            pass
+        
+
+    logging.basicConfig(filename='trading_simulator.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    load_dotenv()
+    ALPACA_ENDPOINT='https://paper-api.alpaca.markets/'
+    ALPACA_API_KEY=os.getenv('ALPACA_KEY')
+    API_SECRET=os.getenv('ALPACA_SECRET')
+
+
     simulator = DividendTradingSimulator(ALPACA_API_KEY=ALPACA_API_KEY, ALPACA_ENDPOINT=ALPACA_ENDPOINT,API_SECRET=API_SECRET)
     simulator.run_simulation()

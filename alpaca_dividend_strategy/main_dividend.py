@@ -20,12 +20,8 @@ import json
 import base64
 from google.protobuf import descriptor_pool, message_factory, descriptor_pb2
 
-logging.basicConfig(filename='trading_simulator.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-#aggiungre il fatto di controllare la mattina che effettivamente l'ordine non sia entrato dopo , eche lo short non sia attivo, moodificare il prezzo di compera quando si cambia, da prezzo serale a prezzo mattutitno etc, anche nella funzione di short magari  !!!
-load_dotenv()
-ALPACA_ENDPOINT='https://paper-api.alpaca.markets/'
-ALPACA_API_KEY=os.getenv('ALPACA_KEY')
-API_SECRET=os.getenv('ALPACA_SECRET')
+
+
 
 
 class DividendTradingSimulator:
@@ -748,7 +744,6 @@ class DividendTradingSimulator:
 
         short_order_id = short_order.id
         
-        # Wait and check if the short sell order is filled
         for _ in range(3600):  # Check every second for up to 60 seconds
             if self.is_order_filled(short_order_id):
                 logging.info("Short sell order filled successfully.")
@@ -759,5 +754,19 @@ class DividendTradingSimulator:
 
 
 if __name__ == "__main__":
+    useless_file=["trading_simulator.log","dividend_trading_results.csv","nohup.out"]
+    for file in useless_file:
+        try:
+            os.remove(file)
+        except:
+            pass
+
+    logging.basicConfig(filename='trading_simulator.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    #aggiungre il fatto di controllare la mattina che effettivamente l'ordine non sia entrato dopo , eche lo short non sia attivo, moodificare il prezzo di compera quando si cambia, da prezzo serale a prezzo mattutitno etc, anche nella funzione di short magari  !!!
+    load_dotenv()
+    ALPACA_ENDPOINT='https://paper-api.alpaca.markets/'
+    ALPACA_API_KEY=os.getenv('ALPACA_KEY')
+    API_SECRET=os.getenv('ALPACA_SECRET')
+
     simulator = DividendTradingSimulator()
     simulator.run_simulation()
