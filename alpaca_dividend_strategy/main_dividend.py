@@ -185,7 +185,14 @@ class DividendTradingSimulator:
                             break
                         time.sleep(0.5)
 
-                    self.open_price = float(self.get_stock_price_pre(self.stock_to_buy))
+                    try:
+                        self.open_price = float(self.get_stock_price_pre(self.stock_to_buy))
+                    except:
+                        try:
+                            self.open_price= float(self.get_stock_price_post((self.stock_to_buy)))
+                        except:
+                            self.open_price= float(self.get_stock_price_intraday((self.stock_to_buy)))
+
                     shares_bought = self.budget // (self.open_price)
                     limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
