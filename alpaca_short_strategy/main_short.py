@@ -97,10 +97,10 @@ class DividendTradingSimulator:
             self.sell_price = float(self.get_stock_price_post(self.stock_to_sell))
 
 
-            if datetime.datetime.now(self.italy_tz).weekday() != 4: 
+            if datetime.datetime.now(self.italy_tz).weekday() != 5: 
                 sell_time = self.get_next_time(hour=10, minute=0)
                 wait_time = (sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
-            elif datetime.datetime.now(self.italy_tz).weekday() == 4: 
+            elif datetime.datetime.now(self.italy_tz).weekday() == 5: 
                 monday_morning = self.get_next_time(hour=10, minute=0) + datetime.timedelta(days=2)
                 wait_time = (monday_morning - datetime.datetime.now(self.italy_tz)).total_seconds()
 

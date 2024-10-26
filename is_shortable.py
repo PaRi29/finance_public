@@ -36,4 +36,4 @@ def is_easy_to_short( symbol):
     except:
         return False
 
-print(is_easy_to_short("PTAIY"))
+print(is_easy_to_short("SNLAY"))
