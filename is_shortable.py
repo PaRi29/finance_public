@@ -36,4 +36,13 @@ def is_easy_to_short( symbol):
     except:
         return False
 
-print(is_easy_to_short("SNLAY"))
+def get_next_time( hour, minute):
+    italy_tz= pytz.timezone('Europe/Rome')
+    now = datetime.datetime.now(italy_tz)
+    next_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if next_time <= now:
+        next_time += datetime.timedelta(days=1)
+    return next_time
+
+print(is_easy_to_short("CALM"))
+print(get_next_time(0,59))
