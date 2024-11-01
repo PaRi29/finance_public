@@ -65,7 +65,7 @@ class DividendTradingSimulator:
             self.telegram_bot_sendtext(
                 f"Giorno {self.current_simulation_day + 1}")
 
-            start_time = self.get_next_time(hour=19, minute=15)
+            start_time = self.get_next_time(hour=19, minute=25)
             wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
             if wait_time > 0:
