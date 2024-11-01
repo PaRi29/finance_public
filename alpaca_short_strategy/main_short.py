@@ -56,7 +56,7 @@ class DividendTradingSimulator:
             logging.info(f"Giorno {self.current_simulation_day + 1}")
             self.telegram_bot_sendtext(f"Giorno {self.current_simulation_day + 1}")
 
-            start_time = self.get_next_time(hour=19, minute=0)
+            start_time = self.get_next_time(hour=19, minute=10)
             wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
             if wait_time > 0:
@@ -115,8 +115,7 @@ class DividendTradingSimulator:
                 time.sleep(0.35)
 
             shares_sold = self.budget // (self.sell_price)
-
-            limit_price= self.sell_price - 0.5*(self.dividend_per_action/self.sell_price) #provo a vedere ad un prezzo che è quello originale meno il 50% del dividendo
+            limit_price = self.sell_price - 0.5*(self.dividend_per_action/self.sell_price) #provo a vedere ad un prezzo che è quello originale meno il 50% del dividendo
             rounded_limit_price = round(limit_price, 2)
 
             try:
@@ -128,9 +127,9 @@ class DividendTradingSimulator:
                     logging.info("sleeping 8 hours")
                     time.sleep(60*60*8)
                     continue
-                
                 else:
                     self.filled_price=float(q_)
+
             except:
                     logging.info("saltando il giorno")
                     self.telegram_bot_sendtext("la vendita allo scoperto giornaliera non ha funzionato")
@@ -140,19 +139,17 @@ class DividendTradingSimulator:
                     continue
             
             logging.info(f"vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.filled_price:.2f} alle {sell_time}")
-            
             self.telegram_bot_sendtext(f"Vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.filled_price:.2f} alle {sell_time}")
 
-            target_time = self.get_next_time(hour=14, minute=33)#in ogni caso dorme fino alle 15:30 tanto lo short è già iniziato 
+            target_time = self.get_next_time(hour=14, minute=32)#in ogni caso dorme fino alle 15:30 tanto lo short è già iniziato 
             self.sleep_until(target_time)
             logging.info(f"In attesa fino alle {target_time} per la vendita...")
-
             asyncio.run(self.run_short_selling(self.stock_to_sell,self.filled_price,shares_sold))
 
             logging.info(f"comprando {shares_sold} azioni di {self.stock_to_sell} a ${self.buy_price:.2f} alle {sell_time}")
             self.telegram_bot_sendtext(f"comprando {shares_sold} azioni di {self.stock_to_sell} a ${self.buy_price:.2f} alle {sell_time}")
 
-            time.sleep(300)
+            time.sleep(600)
             self.current_simulation_day += 1
             prev_budget=self.budget
 
@@ -184,6 +181,8 @@ class DividendTradingSimulator:
             )
             portfolio_summary = (
                 f"stock:  {self.stock_to_sell}\n"
+                f"prezzo vi vendita: ${self.filled_price:.2f}\n"
+                f"prezzo di acquisto: ${self.buy_price:.2f}\n"
                 f"Profitto/Perdita: ${profit_loss:.2f}\n"
                 f"Totale Portafoglio: ${self.budget:.2f}\n"
                 "==================================="
@@ -201,11 +200,6 @@ class DividendTradingSimulator:
         self.telegram_bot_sendtext("\n--- Riepilogo finale ---")
         self.telegram_bot_sendtext(f"Bilancio P/L: ${total_profit_loss:.2f}")
         logging.info("\n")
-
-    def get_stock_price_single(self,symbol):
-        api = self.ALPACA_API
-        barset = api.get_latest_trade(symbol)
-        return barset.price
 
     def get_stock_price_intraday(self, symbol):
         url = f"https://finance.yahoo.com/quote/{symbol}/"
@@ -309,10 +303,9 @@ class DividendTradingSimulator:
     def calculate_short_profit(self, symbol, initial_price, shares_sold, borrow_cost):
         """Calcola il profitto finale della vendita allo scoperto."""
         self.buy_price = self.current_price  # Usa il prezzo corrente per chiudere la posizione
-        self.close_position(symbol)
-
+        close_price=self.current_price*1.002
+        self.close_position(symbol,close_price)
         short_profit = (initial_price - self.buy_price) * shares_sold - borrow_cost - self.short_commission - self.short_close_commission
-
         # Applica tasse sui profitti
         if short_profit > 0:
             short_profit *= (1 - self.tax_rate)
@@ -321,34 +314,33 @@ class DividendTradingSimulator:
         return short_profit
     
 
-    def close_position(self, symbol):
+    def close_position(self, symbol, price):
         try:
-            # Get the position for the specified symbol
             position = self.ALPACA_API.get_position(symbol)
 
-            # Get the quantity as an integer
             qty = abs(int(position.qty))
-
-            # Determine if the position is long (buy) or short (sell)
             if position.side == 'long':
                 # Close the long position by selling the shares
                 self.ALPACA_API.submit_order(
                     symbol=symbol,
                     qty=qty,
-                    side='sell',
-                    type='market',
-                    time_in_force='gtc'
-                )
+                    side='sell',          # Short selling
+                    type='limit',         # Limit order type
+                    limit_price=price,
+                    time_in_force='gtc')
+
                 logging.info(f'Closed long position for {symbol}.')
+
             elif position.side == 'short':
                 # Close the short position by buying the shares
                 self.ALPACA_API.submit_order(
                     symbol=symbol,
                     qty=qty,
-                    side='buy',
-                    type='market',
-                    time_in_force='gtc'
-                )
+                    side='buy',          # Short selling
+                    type='limit',         # Limit order type
+                    limit_price=price,
+                    time_in_force='gtc')
+
                 logging.info(f'Closed short position for {symbol}.')
             else:
                 logging.info(f'No open position for {symbol}.')

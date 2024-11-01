@@ -28,6 +28,7 @@ class DividendTradingSimulator:
     def __init__(self, initial_budget=1000, simulation_days=30, commission=1.0, short_borrow_rate=0.003):
         self.ALPACA_API=tradeapi.REST(ALPACA_API_KEY, API_SECRET, ALPACA_ENDPOINT, api_version='v2')  
         self.budget = float(self.ALPACA_API.get_account().cash)- 25000
+        print(self.budget)
         self.dividend_balance = 0
         self.simulation_days = simulation_days
         self.current_simulation_day = 0
@@ -59,11 +60,12 @@ class DividendTradingSimulator:
         while self.current_simulation_day < self.simulation_days:
             self.is_position_closed=False
             self.is_short_open=False
+
             logging.info(f"Giorno {self.current_simulation_day + 1}")
             self.telegram_bot_sendtext(
                 f"Giorno {self.current_simulation_day + 1}")
 
-            start_time = self.get_next_time(hour=19, minute=0)
+            start_time = self.get_next_time(hour=19, minute=10)
             wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
             if wait_time > 0:
@@ -134,7 +136,7 @@ class DividendTradingSimulator:
                           self.stock_to_buy, price_,
                           self.dividend_per_action, self.has_pre)
 
-            buy_time = self.get_next_time(hour=20, minute=59)
+            buy_time = self.get_next_time(hour=20, minute=58)
             wait_time = (
                 buy_time - datetime.datetime.now(self.italy_tz)).total_seconds()
             logging.info(wait_time)
@@ -146,12 +148,14 @@ class DividendTradingSimulator:
 
             self.open_price = float(self.get_stock_price_intraday(self.stock_to_buy))
             print(self.open_price) 
-            limit_price= self.open_price*1.02
+            limit_price= self.open_price*1.003
             rounded_limit_price = round(limit_price, 2)
+            print(f"Budget: {self.budget}, Open Price: {self.open_price}")
 
+            shares_bought = abs(self.budget // (self.open_price))
+            cost = shares_bought * self.open_price + self.commission  
 
-            shares_bought = self.budget // (self.open_price)
-            cost = shares_bought * self.open_price + self.commission    
+            print(shares_bought)
             status=self.alpaca_buy_intraday(self.stock_to_buy,shares_bought)
 
             self.current_simulation_day += 1
@@ -214,7 +218,14 @@ class DividendTradingSimulator:
                             break
                         time.sleep(0.5)
 
-                    self.open_price = float(self.get_stock_price_pre(self.stock_to_buy))
+                    try:
+                        self.open_price = float(self.get_stock_price_pre(self.stock_to_buy))
+                    except:
+                        try:
+                            self.open_price= float(self.get_stock_price_post((self.stock_to_buy)))
+                        except:
+                            self.open_price= float(self.get_stock_price_intraday((self.stock_to_buy)))
+
                     shares_bought = self.budget // (self.open_price)
                     limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
@@ -225,7 +236,6 @@ class DividendTradingSimulator:
                     self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
 
             time.sleep(60)
-
             if not self.is_position_closed:
                 first_afternoon= self.get_next_time(hour=14, minute=30)
                 wait_time = (first_afternoon - datetime.datetime.now(self.italy_tz)).total_seconds()
@@ -261,7 +271,7 @@ class DividendTradingSimulator:
 
                     self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
 
-            sell_time = self.get_next_time(hour=14, minute=33)
+            sell_time = self.get_next_time(hour=14, minute=32)
             wait_time = (
                 sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
@@ -269,6 +279,7 @@ class DividendTradingSimulator:
             logging.info(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
             self.telegram_bot_sendtext(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
 
+            time.sleep(600)
             gross_dividend = shares_bought * self.dividend_per_action
             logging.info(gross_dividend)
             net_dividend = gross_dividend * \
@@ -364,9 +375,9 @@ class DividendTradingSimulator:
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
             'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
             'cache-control': 'max-age=0',
-            'cookie': 'GUC=AQABCAFm0cNnA0IebARG&s=AQAAANll0iRa&g=ZtB-1Q; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHD0WYDZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAp2gCGvmSB0GzU9iM4gybEg; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHD0WYDZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAp2gCGvmSB0GzU9iM4gybEg; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHD0WYDZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAp2gCGvmSB0GzU9iM4gybEg; PRF=t%3DTSLA%252BCHMI%252BCOF%252BKC%253DF%252BPRG%252BAHH%252BTDW%252BBCSF%252BE%252BAAPL%252BNVDA%252BRWT%252BTNSGF%252BLOGI%252BGHSI',
+            'cookie': 'GUC=AQABCAFnBjRnNEIebARG&s=AQAAAFQYrj8Z&g=ZwTq1w; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; PRF=t%3DAAPL%252BTSLA%252BSQ%252BQS%252BSAVE%252BHON%252BQBTS%252BQUBT%252BARQQ%252BRGTI%252BIONQ%252BNNE%252BD%252BNWE%252BTSQ; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; EuConsent=CQGLJwAQGLJwAAOACKITBNFgAAAAAAAAACiQAAAAAAAA; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg; GUCS=ASlPb4q1',
             'priority': 'u=0, i',
-            'sec-ch-ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Brave";v="128"',
+            'sec-ch-ua': '"Chromium";v="130", "Brave";v="130", "Not?A_Brand";v="99"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
             'sec-fetch-dest': 'document',
@@ -375,21 +386,22 @@ class DividendTradingSimulator:
             'sec-fetch-user': '?1',
             'sec-gpc': '1',
             'upgrade-insecure-requests': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
         }
 
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
+            print("Error fetching the page.")
             return None
+
         soup = BeautifulSoup(response.text, 'html.parser')
-        pre_market_price_tag = soup.find('fin-streamer', {
-            'data-symbol': symbol,
-            'data-field': 'regularMarketPrice'
-        })
-        if pre_market_price_tag:
-            pre_market_price = pre_market_price_tag.get('data-value')
-            return float(pre_market_price)
+        # Locate the stock price element based on its class and data-testid
+        stock_price_element = soup.find("fin-streamer", {"class": "livePrice yf-1tejb6", "data-testid": "qsp-price"})
+
+        if stock_price_element:
+            return stock_price_element.text
         else:
+            print("Could not find the stock price element.")
             return None
 
     def get_stock_price_pre(self, symbol):
