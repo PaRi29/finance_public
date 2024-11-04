@@ -56,7 +56,7 @@ class DividendTradingSimulator:
             logging.info(f"Giorno {self.current_simulation_day + 1}")
             self.telegram_bot_sendtext(f"Giorno {self.current_simulation_day + 1}")
 
-            start_time = self.get_next_time(hour=19, minute=25)
+            start_time = self.get_next_time(hour=20, minute=0)
             wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
             if wait_time > 0:
@@ -89,7 +89,7 @@ class DividendTradingSimulator:
 
             self.stock_to_sell, price_, self.dividend_per_action, self.has_pre = stock_info
             logging.info(f"{self.stock_to_sell}, {price_}, {self.dividend_per_action}, {self.has_pre}")
-            close_market_time=self.get_next_time(hour=0, minute=59)
+            close_market_time=self.get_next_time(hour=1, minute=59)
             wait_time = (close_market_time - datetime.datetime.now(self.italy_tz)).total_seconds()
             if wait_time > 0:
                 logging.info(f"In attesa fino alle {close_market_time} per reperire l'ultimo prezzo...")
@@ -98,17 +98,17 @@ class DividendTradingSimulator:
 
 
             if datetime.datetime.now(self.italy_tz).weekday() != 5: 
-                sell_time = self.get_next_time(hour=9, minute=0)
+                sell_time = self.get_next_time(hour=10, minute=0)
                 wait_time = (sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
             elif datetime.datetime.now(self.italy_tz).weekday() == 5: 
-                sell_time = self.get_next_time(hour=9, minute=0) + datetime.timedelta(days=2)
+                sell_time = self.get_next_time(hour=10, minute=0) + datetime.timedelta(days=2)
                 wait_time = (sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
             if wait_time > 0:
                 logging.info(f"In attesa fino alle {sell_time} per la vendita...")
                 time.sleep(wait_time)
 
-            no_hope_time = self.get_next_time(hour=9, minute=59)
+            no_hope_time = self.get_next_time(hour=10, minute=59)
             while datetime.datetime.now(self.italy_tz) < no_hope_time:
                 if self.is_easy_to_short(self.stock_to_sell):
                     break
@@ -141,7 +141,7 @@ class DividendTradingSimulator:
             logging.info(f"vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.filled_price:.2f} alle {sell_time}")
             self.telegram_bot_sendtext(f"Vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.filled_price:.2f} alle {sell_time}")
 
-            target_time = self.get_next_time(hour=14, minute=32)#in ogni caso dorme fino alle 15:30 tanto lo short è già iniziato 
+            target_time = self.get_next_time(hour=15, minute=32)#in ogni caso dorme fino alle 15:30 tanto lo short è già iniziato 
             self.sleep_until(target_time)
             logging.info(f"In attesa fino alle {target_time} per la vendita...")
             asyncio.run(self.run_short_selling(self.stock_to_sell,self.filled_price,shares_sold))
@@ -268,7 +268,7 @@ class DividendTradingSimulator:
         borrow_cost = shares_sold * initial_price * self.short_borrow_rate
         stop_gain = -0.9 * self.dividend_per_action / self.sell_price
         stop_loss = 0.01
-        market_close_time = datetime.time(20, 50)
+        market_close_time = datetime.time(21, 50)
 
         while not self.stop_simulation:
             current_time = datetime.datetime.now(self.italy_tz).time()
@@ -514,9 +514,9 @@ class DividendTradingSimulator:
 
     def get_next_sell_time(self):
         if self.has_pre == True:
-            return self.get_next_time(hour=9, minute=0)
+            return self.get_next_time(hour=10, minute=0)
         else:
-            return self.get_next_time(hour=14, minute=30)
+            return self.get_next_time(hour=15, minute=30)
     
     def sleep_until(self, target_time):
         now = datetime.datetime.now(self.italy_tz)
