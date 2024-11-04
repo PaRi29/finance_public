@@ -202,7 +202,10 @@ class DividendTradingSimulator:
                     rounded_limit_price = round(limit_price, 2)
                     self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
                     time.sleep(10)
-                    self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    if self.is_position_closed:
+                        self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    else:
+                        self.is_short_open = False
             else:  # Altri giorni della settimana
                 next_morning = self.get_next_time(hour=9, minute=0)
                 wait_time = (next_morning - datetime.datetime.now(self.italy_tz)).total_seconds()
@@ -233,7 +236,10 @@ class DividendTradingSimulator:
 
                     self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
                     time.sleep(10)
-                    self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    if self.is_position_closed:
+                        self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    else:
+                        self.is_short_open= False
 
             time.sleep(60)
             if not self.is_position_closed:
