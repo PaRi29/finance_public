@@ -101,8 +101,8 @@ class DividendTradingSimulator:
                 sell_time = self.get_next_time(hour=9, minute=0)
                 wait_time = (sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
             elif datetime.datetime.now(self.italy_tz).weekday() == 5: 
-                monday_morning = self.get_next_time(hour=9, minute=0) + datetime.timedelta(days=2)
-                wait_time = (monday_morning - datetime.datetime.now(self.italy_tz)).total_seconds()
+                sell_time = self.get_next_time(hour=9, minute=0) + datetime.timedelta(days=2)
+                wait_time = (sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
             if wait_time > 0:
                 logging.info(f"In attesa fino alle {sell_time} per la vendita...")
