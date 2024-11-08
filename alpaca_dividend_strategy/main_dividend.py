@@ -256,7 +256,7 @@ class DividendTradingSimulator:
                     limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
 
-
+                    self.ALPACA_API.cancel_all_orders()
                     self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
                     time.sleep(10)
                     self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
@@ -274,7 +274,8 @@ class DividendTradingSimulator:
                     shares_bought = self.budget // (self.open_price)
                     limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
-
+                    
+                    self.ALPACA_API.cancel_all_orders()
                     self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
 
             sell_time = self.get_next_time(hour=15, minute=32)
