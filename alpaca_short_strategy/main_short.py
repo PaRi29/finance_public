@@ -114,29 +114,40 @@ class DividendTradingSimulator:
                     break
                 time.sleep(0.35)
 
-            shares_sold = self.budget // (self.sell_price)
-            limit_price = self.sell_price - 0.5*(self.dividend_per_action/self.sell_price) #provo a vedere ad un prezzo che è quello originale meno il 50% del dividendo
-            rounded_limit_price = round(limit_price, 2)
+            
+            attempts = 0  # Contatore per i tentativi
+            success = False  # Flag per il successo della vendita
+            diminuendo= 0.5            
 
-            try:
-                q_=self.short_sell_pre_hours(self.stock_to_sell,shares_sold,rounded_limit_price)
-                if not q_:
-                    logging.info("saltando il giorno")
-                    self.telegram_bot_sendtext("la vendita allo scoperto giornaliera non ha funzionato")
-                    self.current_simulation_day += 1
-                    logging.info("sleeping 8 hours")
-                    time.sleep(60*60*8)
-                    continue
-                else:
-                    self.filled_price=float(q_)
+            while attempts < 3 and not success:  # Prova fino a 3 volte
+                self.ALPACA_API.cancel_all_orders()
+                shares_sold = self.budget // (self.sell_price)
+                limit_price = self.sell_price - diminuendo*(self.dividend_per_action/self.sell_price)
+                rounded_limit_price = round(limit_price, 2)
 
-            except:
-                    logging.info("saltando il giorno")
-                    self.telegram_bot_sendtext("la vendita allo scoperto giornaliera non ha funzionato")
-                    self.current_simulation_day += 1
-                    logging.info("sleeping 8 hours")
-                    time.sleep(60*60*8)
-                    continue
+                try:
+                    q_ = self.short_sell_pre_hours(self.stock_to_sell, shares_sold, rounded_limit_price)
+                    if q_:
+                        self.filled_price = float(q_)
+                        success = True  # Vendita riuscita
+                    else:
+                        logging.info("Vendita allo scoperto non riuscita, riprovando...")
+                        diminuendo=diminuendo+0.1
+                        attempts += 1
+                        time.sleep(3600)  # Attendi 1 ora prima di riprovare
+                except Exception as e:
+                    logging.info(f"Errore durante la vendita allo scoperto: {e}")
+                    diminuendo=diminuendo+0.1
+                    attempts += 1
+                    time.sleep(3600)  # Attendi 1 ora prima di riprovare
+            if not success:  # Se dopo 3 tentativi non è riuscito
+                logging.info("saltando il giorno")
+                self.telegram_bot_sendtext("la vendita allo scoperto giornaliera non ha funzionato")
+                self.current_simulation_day += 1
+                logging.info("sleeping 8 hours")
+                time.sleep(60*60*8)
+                continue
+            
             
             logging.info(f"vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.filled_price:.2f} alle {sell_time}")
             self.telegram_bot_sendtext(f"Vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.filled_price:.2f} alle {sell_time}")
