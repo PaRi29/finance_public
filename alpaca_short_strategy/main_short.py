@@ -108,22 +108,23 @@ class DividendTradingSimulator:
                 logging.info(f"In attesa fino alle {sell_time} per la vendita...")
                 time.sleep(wait_time)
 
-            no_hope_time = self.get_next_time(hour=10, minute=59)
-            while datetime.datetime.now(self.italy_tz) < no_hope_time:
-                if self.is_easy_to_short(self.stock_to_sell):
-                    break
-                time.sleep(0.35)
-
             
             attempts = 0  # Contatore per i tentativi
             success = False  # Flag per il successo della vendita
-            diminuendo= 0.5            
+            diminuendo= 0.5   
+            hour_= 10         
 
             while attempts < 3 and not success:  # Prova fino a 3 volte
                 self.ALPACA_API.cancel_all_orders()
                 shares_sold = self.budget // (self.sell_price)
                 limit_price = self.sell_price - diminuendo*(self.dividend_per_action/self.sell_price)
                 rounded_limit_price = round(limit_price, 2)
+                no_hope_time = self.get_next_time(hour=hour_, minute=59)
+
+                while datetime.datetime.now(self.italy_tz) < no_hope_time:
+                    if self.is_easy_to_short(self.stock_to_sell):
+                        break
+                    time.sleep(0.35)
 
                 try:
                     q_ = self.short_sell_pre_hours(self.stock_to_sell, shares_sold, rounded_limit_price)
@@ -134,18 +135,21 @@ class DividendTradingSimulator:
                         logging.info("Vendita allo scoperto non riuscita, riprovando...")
                         diminuendo=diminuendo+0.1
                         attempts += 1
+                        hour_=hour_+1
                         time.sleep(3600)  # Attendi 1 ora prima di riprovare
                 except Exception as e:
                     logging.info(f"Errore durante la vendita allo scoperto: {e}")
                     diminuendo=diminuendo+0.1
                     attempts += 1
                     time.sleep(3600)  # Attendi 1 ora prima di riprovare
+                    hour_=hour_+1
+
             if not success:  # Se dopo 3 tentativi non è riuscito
                 logging.info("saltando il giorno")
                 self.telegram_bot_sendtext("la vendita allo scoperto giornaliera non ha funzionato")
                 self.current_simulation_day += 1
-                logging.info("sleeping 8 hours")
-                time.sleep(60*60*8)
+                logging.info("sleeping 4 hours")
+                time.sleep(60*60*3)
                 continue
             
             
