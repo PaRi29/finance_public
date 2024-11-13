@@ -53,15 +53,16 @@ class DividendTradingSimulator:
     def run_simulation(self):
         self.initialize_csv()
         while self.current_simulation_day < self.simulation_days:
-            logging.info(f"Giorno {self.current_simulation_day + 1}")
-            self.telegram_bot_sendtext(f"Giorno {self.current_simulation_day + 1}")
-
             start_time = self.get_next_time(hour=20, minute=0)
             wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
             if wait_time > 0:
                 time.sleep(wait_time)
                 time.sleep(3)
+
+            logging.info(f"Giorno {self.current_simulation_day + 1}")
+            self.telegram_bot_sendtext(f"Giorno {self.current_simulation_day + 1}")
+
 
             self.stock_data = pd.read_csv("stock_to_buy.csv")
             self.tomorrow_date_number = (datetime.datetime.now(self.italy_tz) + datetime.timedelta(days=1)).strftime('%b %d, %Y')
@@ -119,7 +120,7 @@ class DividendTradingSimulator:
                 shares_sold = self.budget // (self.sell_price)
                 limit_price = self.sell_price - diminuendo*(self.dividend_per_action/self.sell_price)
                 rounded_limit_price = round(limit_price, 2)
-                no_hope_time = self.get_next_time(hour=hour_, minute=59)
+                no_hope_time = self.get_next_time(hour=hour_, minute=58)
 
                 while datetime.datetime.now(self.italy_tz) < no_hope_time:
                     if self.is_easy_to_short(self.stock_to_sell):
@@ -133,15 +134,18 @@ class DividendTradingSimulator:
                         success = True  # Vendita riuscita
                     else:
                         logging.info("Vendita allo scoperto non riuscita, riprovando...")
+                        wait_time = (self.get_next_time(hour=hour_+1, minute=0) - datetime.datetime.now(self.italy_tz)).total_seconds()
+                        time.sleep(wait_time)  # Attendi la prissma ora prima di riprovare
                         diminuendo=diminuendo+0.1
                         attempts += 1
                         hour_=hour_+1
-                        time.sleep(3600)  # Attendi 1 ora prima di riprovare
+
                 except Exception as e:
                     logging.info(f"Errore durante la vendita allo scoperto: {e}")
+                    wait_time = (self.get_next_time(hour=hour_+1, minute=0) - datetime.datetime.now(self.italy_tz)).total_seconds()
+                    time.sleep(wait_time)  # Attendi la prissma ora prima di riprovare
                     diminuendo=diminuendo+0.1
                     attempts += 1
-                    time.sleep(3600)  # Attendi 1 ora prima di riprovare
                     hour_=hour_+1
 
             if not success:  # Se dopo 3 tentativi non è riuscito
@@ -149,7 +153,7 @@ class DividendTradingSimulator:
                 self.telegram_bot_sendtext("la vendita allo scoperto giornaliera non ha funzionato")
                 self.current_simulation_day += 1
                 logging.info("sleeping 4 hours")
-                time.sleep(60*60*3)
+                time.sleep(60*10)
                 continue
             
             
