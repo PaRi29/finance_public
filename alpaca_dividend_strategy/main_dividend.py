@@ -61,16 +61,16 @@ class DividendTradingSimulator:
             self.is_position_closed=False
             self.is_short_open=False
 
-            logging.info(f"Giorno {self.current_simulation_day + 1}")
-            self.telegram_bot_sendtext(
-                f"Giorno {self.current_simulation_day + 1}")
 
             start_time = self.get_next_time(hour=20, minute=0)
             wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
-
             if wait_time > 0:
                 time.sleep(wait_time)
                 time.sleep(3)
+
+            logging.info(f"Giorno {self.current_simulation_day + 1}")
+            self.telegram_bot_sendtext(
+                f"Giorno {self.current_simulation_day + 1}")
 
             self.stock_data = pd.read_csv("stock_to_buy.csv")
             self.tomorrow_date_number = (datetime.datetime.now(
