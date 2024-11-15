@@ -253,7 +253,6 @@ class DividendTradingSimulator:
                     time.sleep(1)
                     self.ALPACA_API.cancel_all_orders()
                     time.sleep(5)
-
                     self.open_price = float(self.get_stock_price_intraday(self.stock_to_buy))
                     shares_bought = self.budget // (self.open_price)
                     limit_price= self.open_price*0.98
@@ -701,10 +700,9 @@ class DividendTradingSimulator:
         
         for _ in range(3600):  # Check every second for up to 60 seconds
             if self.is_order_filled(sell_order_id):
-                logging.info("Buy position closed successfully.")
                 return True
             time.sleep(1)
-        logging.info("Failed to close buy position within the time limit.")
+        logging.info("Failed to buy within the time limit.")
         return False
 
 
