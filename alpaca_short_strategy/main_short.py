@@ -120,6 +120,7 @@ class DividendTradingSimulator:
                 shares_sold = self.budget // (self.sell_price)
                 limit_price = self.sell_price - diminuendo*(self.dividend_per_action/self.sell_price)
                 rounded_limit_price = round(limit_price, 2)
+                logging.info(f"Tentativo {attempts + 1}: Vendita di {shares_sold} azioni a ${rounded_limit_price:.2f}")
                 no_hope_time = self.get_next_time(hour=hour_, minute=58)
 
                 while datetime.datetime.now(self.italy_tz) < no_hope_time:
