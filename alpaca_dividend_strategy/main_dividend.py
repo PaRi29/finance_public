@@ -251,7 +251,7 @@ class DividendTradingSimulator:
                     logging.info(wait_time)
                     time.sleep(wait_time)
                     time.sleep(1)
-                    self.ALPACA_API.cancel_all_orders()
+                    self.cancel_orders()
                     time.sleep(5)
                     self.open_price = float(self.get_stock_price_intraday(self.stock_to_buy))
                     shares_bought = self.budget // (self.open_price)
@@ -270,7 +270,7 @@ class DividendTradingSimulator:
                     logging.info(wait_time)
                     time.sleep(wait_time)
                     time.sleep(1)
-                    self.ALPACA_API.cancel_all_orders()
+                    self.cancel_orders()
                     time.sleep(5)
 
                     self.open_price = float(self.get_stock_price_intraday(self.stock_to_buy))
@@ -778,6 +778,18 @@ class DividendTradingSimulator:
             time.sleep(1)
         logging.info("Failed to fill short sell order within the time limit.")
         return False
+
+    def cancel_orders(self):
+        # This method simulates deleting all not filled orders
+        try:
+            open_orders = self.ALPACA_API.list_orders(status='open')
+            for order in open_orders:
+                self.ALPACA_API.cancel_order(order.id)
+                logging.info(f"Cancelled order ID: {order.id}")
+            return "All not filled orders deleted."
+        except Exception as e:
+            logging.error(f"Error deleting not filled orders: {e}")
+            return f"Error deleting not filled orders: {e}"
 
 
 if __name__ == "__main__":
