@@ -116,7 +116,7 @@ class DividendTradingSimulator:
             hour_= 10         
 
             while attempts < 3 and not success:  # Prova fino a 3 volte
-                self.ALPACA_API.cancel_all_orders()
+                self.cancel_orders()
                 shares_sold = self.budget // (self.sell_price)
                 limit_price = self.sell_price - diminuendo*(self.dividend_per_action/self.sell_price)
                 rounded_limit_price = round(limit_price, 2)
@@ -136,18 +136,27 @@ class DividendTradingSimulator:
                     else:
                         logging.info("Vendita allo scoperto non riuscita, riprovando...")
                         wait_time = (self.get_next_time(hour=hour_+1, minute=0) - datetime.datetime.now(self.italy_tz)).total_seconds()
-                        time.sleep(wait_time)  # Attendi la prissma ora prima di riprovare
-                        diminuendo=diminuendo+0.1
+                        if wait_time > 0:  # Aggiunto controllo per wait_time
+                            logging.info(str(wait_time))
+                            time.sleep(wait_time)  # Attendi la prossima ora prima di riprovare
+                        else:
+                            logging.info("Il tempo di attesa è scaduto, riprovando immediatamente.")
+                        diminuendo = diminuendo + 0.1
                         attempts += 1
-                        hour_=hour_+1
+                        hour_ = hour_ + 1
 
                 except Exception as e:
                     logging.info(f"Errore durante la vendita allo scoperto: {e}")
                     wait_time = (self.get_next_time(hour=hour_+1, minute=0) - datetime.datetime.now(self.italy_tz)).total_seconds()
-                    time.sleep(wait_time)  # Attendi la prissma ora prima di riprovare
-                    diminuendo=diminuendo+0.1
+                    if wait_time > 0:  # Aggiunto controllo per wait_time
+                        time.sleep(wait_time)  # Attendi la prossima ora prima di riprovare
+                        logging.info(str(wait_time))
+
+                    else:
+                        logging.info("Il tempo di attesa è scaduto, riprovando immediatamente.")
+                    diminuendo = diminuendo + 0.1
                     attempts += 1
-                    hour_=hour_+1
+                    hour_ = hour_ + 1
 
             if not success:  # Se dopo 3 tentativi non è riuscito
                 logging.info("saltando il giorno")
@@ -593,6 +602,18 @@ class DividendTradingSimulator:
 
         logging.info("Failed to fill short sell order within the time limit.")
         return False
+
+    def cancel_orders(self):
+        # This method simulates deleting all not filled orders
+        try:
+            open_orders = self.ALPACA_API.list_orders(status='open')
+            for order in open_orders:
+                self.ALPACA_API.cancel_order(order.id)
+                logging.info(f"Cancelled order ID: {order.id}")
+            return "All not filled orders deleted."
+        except Exception as e:
+            logging.error(f"Error deleting not filled orders: {e}")
+            return f"Error deleting not filled orders: {e}"
 
 
 if __name__ == "__main__":
