@@ -109,20 +109,25 @@ class DividendTradingSimulator:
                 logging.info(f"In attesa fino alle {sell_time} per la vendita...")
                 time.sleep(wait_time)
 
-            
+  
             attempts = 0  # Contatore per i tentativi
             success = False  # Flag per il successo della vendita
-            diminuendo= 0.5   
-            hour_= 10         
+            diminuendo= 0.5                
 
             while attempts < 3 and not success:  # Prova fino a 3 volte
                 self.cancel_orders()
+                if datetime.datetime.now(self.italy_tz).hour >= 13 and datetime.datetime.now(self.italy_tz).minute >= 25:
+                    logging.info("Orario limite superato (13:25), interrompendo i tentativi di vendita")
+                    break
+                
+                
                 shares_sold = self.budget // (self.sell_price)
-                limit_price = self.sell_price - diminuendo*(self.dividend_per_action/self.sell_price)
+                limit_price = self.sell_price - diminuendo * (self.dividend_per_action / self.sell_price)
                 rounded_limit_price = round(limit_price, 2)
                 logging.info(f"Tentativo {attempts + 1}: Vendita di {shares_sold} azioni a ${rounded_limit_price:.2f}")
-                no_hope_time = self.get_next_time(hour=hour_, minute=58)
-
+                
+                no_hope_time = datetime.datetime.now(self.italy_tz) + datetime.timedelta(minutes=54)
+                # Controlla se è shortabile con un limite di tempo
                 while datetime.datetime.now(self.italy_tz) < no_hope_time:
                     if self.is_easy_to_short(self.stock_to_sell):
                         break
@@ -134,35 +139,23 @@ class DividendTradingSimulator:
                         self.filled_price = float(q_)
                         success = True  # Vendita riuscita
                     else:
-                        logging.info("Vendita allo scoperto non riuscita, riprovando...")
-                        wait_time = (self.get_next_time(hour=hour_+1, minute=0) - datetime.datetime.now(self.italy_tz)).total_seconds()
-                        if wait_time > 0:  # Aggiunto controllo per wait_time
-                            logging.info(str(wait_time))
-                            time.sleep(wait_time)  # Attendi la prossima ora prima di riprovare
-                        else:
-                            logging.info("Il tempo di attesa è scaduto, riprovando immediatamente.")
-                        diminuendo = diminuendo + 0.1
+                        logging.info("Vendita allo scoperto non riuscita, riprovando fra 5 minuti...")
+                        time.sleep(300)  # Dorme 5 minuti
                         attempts += 1
-                        hour_ = hour_ + 1
+                        diminuendo += 0.1
 
                 except Exception as e:
                     logging.info(f"Errore durante la vendita allo scoperto: {e}")
-                    wait_time = (self.get_next_time(hour=hour_+1, minute=0) - datetime.datetime.now(self.italy_tz)).total_seconds()
-                    if wait_time > 0:  # Aggiunto controllo per wait_time
-                        time.sleep(wait_time)  # Attendi la prossima ora prima di riprovare
-                        logging.info(str(wait_time))
-
-                    else:
-                        logging.info("Il tempo di attesa è scaduto, riprovando immediatamente.")
-                    diminuendo = diminuendo + 0.1
+                    logging.info("Riprovando fra 5 minuti...")
+                    time.sleep(300)  # Dorme 5 minuti
                     attempts += 1
-                    hour_ = hour_ + 1
+                    diminuendo += 0.1
 
             if not success:  # Se dopo 3 tentativi non è riuscito
                 logging.info("saltando il giorno")
                 self.telegram_bot_sendtext("la vendita allo scoperto giornaliera non ha funzionato")
                 self.current_simulation_day += 1
-                logging.info("sleeping 4 hours")
+                logging.info("sleeping poche hours")
                 time.sleep(60*10)
                 continue
             
