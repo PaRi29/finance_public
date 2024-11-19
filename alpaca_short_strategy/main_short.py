@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 class DividendTradingSimulator:
     def __init__(self, ALPACA_API_KEY,API_SECRET,ALPACA_ENDPOINT, simulation_days=30, commission=0, short_borrow_rate=0.003):
         self.ALPACA_API=tradeapi.REST(ALPACA_API_KEY, API_SECRET, ALPACA_ENDPOINT, api_version='v2')  
-        self.budget = float(self.ALPACA_API.get_account().cash)- 2000
+        self.budget = float(self.ALPACA_API.get_account().equity)- 2000
 
         self.simulation_days = simulation_days
         self.current_simulation_day = 0
@@ -182,7 +182,7 @@ class DividendTradingSimulator:
             self.current_simulation_day += 1
             prev_budget=self.budget
 
-            self.budget = float(self.ALPACA_API.get_account().cash)- 2000
+            self.budget = float(self.ALPACA_API.get_account().equity)- 2000
 
             profit_loss= self.budget-prev_budget
 
