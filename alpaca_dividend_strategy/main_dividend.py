@@ -28,6 +28,7 @@ class DividendTradingSimulator:
     def __init__(self, initial_budget=1000, simulation_days=30, commission=1.0, short_borrow_rate=0.003):
         self.ALPACA_API=tradeapi.REST(ALPACA_API_KEY, API_SECRET, ALPACA_ENDPOINT, api_version='v2')  
         self.budget = float(self.ALPACA_API.get_account().equity)- 25000
+        logging.info(self.budget)
         self.dividend_balance = 0
         self.simulation_days = simulation_days
         self.current_simulation_day = 0
