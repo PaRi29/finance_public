@@ -200,7 +200,7 @@ class DividendTradingSimulator:
                     limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
 
-                    self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
                     time.sleep(10)
                     if self.is_position_closed:
                         self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
@@ -235,7 +235,7 @@ class DividendTradingSimulator:
                     rounded_limit_price = round(limit_price, 2)
 
 
-                    self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
                     time.sleep(10)
                     if self.is_position_closed:
                         self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
@@ -258,7 +258,7 @@ class DividendTradingSimulator:
                     limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
 
-                    self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
                     time.sleep(10)
                     self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
             
@@ -711,7 +711,7 @@ class DividendTradingSimulator:
         order = self.ALPACA_API.get_order(order_id)
         return order.status == 'filled'
 
-    def close_buy_position_pre_hours(self, symbol, qty, limit_price_sell):
+    def close_buy_position_pre_hours(self, symbol, limit_price_sell):
         """
         Closes an open buy position in after-hours.
 
@@ -723,7 +723,7 @@ class DividendTradingSimulator:
         Returns:
         - (bool): True if the sell order is filled, False otherwise.
         """
-        # Place the order to sell the buy position after hours
+        qty=self.ALPACA_API.list_positions()[0].qty_available
         sell_order = self.ALPACA_API.submit_order(
             symbol=symbol,
             qty=qty,
@@ -733,9 +733,7 @@ class DividendTradingSimulator:
             time_in_force='day',  # Day order for extended hours
             extended_hours=True   # Allows after-hours trading
         )
-
         sell_order_id = sell_order.id
-        
         # Wait and check if the sell order is filled
         for _ in range(3600):  # Check every second for up to 60 seconds
             if self.is_order_filled(sell_order_id):
