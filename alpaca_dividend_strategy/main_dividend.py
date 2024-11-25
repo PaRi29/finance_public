@@ -202,7 +202,7 @@ class DividendTradingSimulator:
                     rounded_limit_price = round(limit_price, 2)
 
                     self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
-                    time.sleep(10)
+                    time.sleep(2)
                     if self.is_position_closed:
                         self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
                     else:
@@ -237,58 +237,41 @@ class DividendTradingSimulator:
 
 
                     self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
-                    time.sleep(10)
+                    time.sleep(2)
                     if self.is_position_closed:
                         self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
                     else:
                         self.is_short_open= False
 
-            time.sleep(60)
+            time.sleep(60)     
+
             if not self.is_position_closed:
                 first_afternoon= self.get_next_time(hour=15, minute=30)
                 wait_time = (first_afternoon - datetime.datetime.now(self.italy_tz)).total_seconds()
                 if wait_time > 0:
-                    logging.info(f"la posizione non era ancora chiusa, aspettiamo le 15:30 e speriamo")
+                    logging.info(f"la posizione non era ancora chiusa, aspettiamo le 15:30 e speriamo, non aprirò uno short")
+                    self.telegram_bot_sendtext(f"la posizione non era ancora chiusa, aspettiamo le 15:30 e speriamo, non aprirò uno short")
                     logging.info(wait_time)
                     time.sleep(wait_time)
-                    time.sleep(1)
                     self.cancel_orders()
                     time.sleep(5)
-                    self.open_price = float(self.get_stock_price_intraday(self.stock_to_buy))
-                    shares_bought = self.budget // (self.open_price)
-                    limit_price= self.open_price*0.98
-                    rounded_limit_price = round(limit_price, 2)
 
+                    self.close_price = float(self.get_stock_price_intraday(self.stock_to_buy))
+                    limit_price= self.close_price*0.98
+                    rounded_limit_price = round(limit_price, 2)
                     self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
                     time.sleep(10)
-                    self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
-            
-            elif self.is_position_closed and not self.is_short_open:
-                first_afternoon= self.get_next_time(hour=15, minute=30)
-                wait_time = (first_afternoon - datetime.datetime.now(self.italy_tz)).total_seconds()
-                if wait_time > 0:
-                    logging.info(f"la posizione era chiusa, ma lo short non era aperto, aspettiamo le 15:30 e speriamo")
-                    logging.info(wait_time)
-                    time.sleep(wait_time)
-                    time.sleep(1)
-                    self.cancel_orders()
-                    time.sleep(5)
+                    logging.info(f"Chiudendo la posizione di {self.stock_to_buy} a ${self.close_price:.2f},lo short non è stato aperto")
+                    self.telegram_bot_sendtext(f"Chiudendo la posizione di {self.stock_to_buy} a ${self.close_price:.2f},lo short non è stato aperto")
 
-                    self.open_price = float(self.get_stock_price_intraday(self.stock_to_buy))
-                    shares_bought = self.budget // (self.open_price)
-                    limit_price= self.open_price*0.98
-                    rounded_limit_price = round(limit_price, 2)
-                    
-                    self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
-
-            sell_time = self.get_next_time(hour=15, minute=32)
-            wait_time = (
-                sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
-            logging.info(str(wait_time))
-
-            asyncio.run(self.run_short_selling(self.stock_to_buy,self.open_price,shares_bought))
-            logging.info(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
-            self.telegram_bot_sendtext(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
+            elif self.is_position_closed and self.is_short_open:
+                sell_time = self.get_next_time(hour=15, minute=32)
+                wait_time = (
+                    sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
+                logging.info(str(wait_time))
+                asyncio.run(self.run_short_selling(self.stock_to_buy,self.open_price,shares_bought))
+                logging.info(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
+                self.telegram_bot_sendtext(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
 
             time.sleep(600)
             gross_dividend = shares_bought * self.dividend_per_action
@@ -736,7 +719,7 @@ class DividendTradingSimulator:
         )
         sell_order_id = sell_order.id
         # Wait and check if the sell order is filled
-        for _ in range(3600):  # Check every second for up to 60 seconds
+        for _ in range(5500):  # Check every second for up to 60 seconds
             if self.is_order_filled(sell_order_id):
                 logging.info("Buy position closed successfully.")
                 return True
@@ -771,7 +754,7 @@ class DividendTradingSimulator:
 
         short_order_id = short_order.id
         
-        for _ in range(3600):  # Check every second for up to 60 seconds
+        for _ in range(5500):  # Check every second for up to 60 seconds
             if self.is_order_filled(short_order_id):
                 logging.info("Short sell order filled successfully.")
                 return True
