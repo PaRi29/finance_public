@@ -369,9 +369,9 @@ class DividendTradingSimulator:
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
             'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
             'cache-control': 'max-age=0',
-            'cookie': 'GUC=AQABCAFnBjRnNEIebARG&s=AQAAAFQYrj8Z&g=ZwTq1w; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; PRF=t%3DAAPL%252BTSLA%252BSQ%252BQS%252BSAVE%252BHON%252BQBTS%252BQUBT%252BARQQ%252BRGTI%252BIONQ%252BNNE%252BD%252BNWE%252BTSQ; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; EuConsent=CQGLJwAQGLJwAAOACKITBNFgAAAAAAAAACiQAAAAAAAA; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg; GUCS=ASlPb4q1',
+            'cookie': 'GUC=AQABCAFnNdZnZEIebARG&s=AQAAAPRvIT_T&g=ZzSNiw; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; PRF=t%3DTSLA%252BGC%253DF%252BGOLD-USD%252BSMCI%252BLEU%252BCCJ%252BSOUN%252BZM%252BVINP%252BDEA%252BMVST%252BWLKP%252BDKL%252BPLTR%252BRDDT; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg',
             'priority': 'u=0, i',
-            'sec-ch-ua': '"Chromium";v="130", "Brave";v="130", "Not?A_Brand";v="99"',
+            'sec-ch-ua': '"Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
             'sec-fetch-dest': 'document',
@@ -380,8 +380,9 @@ class DividendTradingSimulator:
             'sec-fetch-user': '?1',
             'sec-gpc': '1',
             'upgrade-insecure-requests': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
         }
+
 
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
@@ -405,9 +406,9 @@ class DividendTradingSimulator:
             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
             'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
             'cache-control': 'max-age=0',
-            'cookie': 'GUC=AQABCAFm0cNnA0IebARG&s=AQAAANll0iRa&g=ZtB-1Q; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHD0WYDZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAp2gCGvmSB0GzU9iM4gybEg; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHD0WYDZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAp2gCGvmSB0GzU9iM4gybEg; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHD0WYDZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAp2gCGvmSB0GzU9iM4gybEg; PRF=t%3DTSLA%252BCHMI%252BCOF%252BKC%253DF%252BPRG%252BAHH%252BTDW%252BBCSF%252BE%252BAAPL%252BNVDA%252BRWT%252BTNSGF%252BLOGI%252BGHSI',
+            'cookie': 'GUC=AQABCAFnNdZnZEIebARG&s=AQAAAPRvIT_T&g=ZzSNiw; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; PRF=t%3DTSLA%252BGC%253DF%252BGOLD-USD%252BSMCI%252BLEU%252BCCJ%252BSOUN%252BZM%252BVINP%252BDEA%252BMVST%252BWLKP%252BDKL%252BPLTR%252BRDDT; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg',
             'priority': 'u=0, i',
-            'sec-ch-ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Brave";v="128"',
+            'sec-ch-ua': '"Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
             'sec-fetch-dest': 'document',
@@ -416,8 +417,9 @@ class DividendTradingSimulator:
             'sec-fetch-user': '?1',
             'sec-gpc': '1',
             'upgrade-insecure-requests': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
         }
+
 
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
@@ -437,22 +439,23 @@ class DividendTradingSimulator:
         url = f"https://finance.yahoo.com/quote/{symbol}/"
 
         headers = {
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
-        'cache-control': 'max-age=0',
-        'cookie': 'GUC=AQABCAFnBjRnNEIebARG&s=AQAAAFQYrj8Z&g=ZwTq1w; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAE0Bmc0Z-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAApqIdw8jfGQpaBGxN4l0MQs; PRF=t%3DTSLA%252BFNLC%252BNVDA%252BGAIN%252BTWO%252BCABO%252BCHMI%252BCOF%252BKC%253DF%252BPRG%252BAHH%252BTDW%252BBCSF%252BE%252BAAPL',
-        'priority': 'u=0, i',
-        'sec-ch-ua': '"Brave";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'document',
-        'sec-fetch-mode': 'navigate',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-user': '?1',
-        'sec-gpc': '1',
-        'upgrade-insecure-requests': '1',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
+            'cache-control': 'max-age=0',
+            'cookie': 'GUC=AQABCAFnNdZnZEIebARG&s=AQAAAPRvIT_T&g=ZzSNiw; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; PRF=t%3DTSLA%252BGC%253DF%252BGOLD-USD%252BSMCI%252BLEU%252BCCJ%252BSOUN%252BZM%252BVINP%252BDEA%252BMVST%252BWLKP%252BDKL%252BPLTR%252BRDDT; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg',
+            'priority': 'u=0, i',
+            'sec-ch-ua': '"Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'document',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-site': 'same-origin',
+            'sec-fetch-user': '?1',
+            'sec-gpc': '1',
+            'upgrade-insecure-requests': '1',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
         }
+
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             return None
