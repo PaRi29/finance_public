@@ -263,12 +263,13 @@ class DividendDataExtractor:
                 empty_df.to_csv(output_file_path, index=False)
 
                 folders = ['finance_public/alpaca_dividend_strategy',
-                           'finance_public/alpaca_short_strategy']
+                           'finance_public/alpaca_short_strategy','finance_public/alpaca_option_strategy' ]
                 for folder in folders:
-                    # Save empty CSV in each folder
-                    empty_df.to_csv(os.path.join(
-                        folder, 'stock_to_buy.csv'), index=False)
-                    
+                    try: 
+                        empty_df.to_csv(os.path.join(
+                            folder, 'stock_to_buy.csv'), index=False)
+                    except: 
+                        pass
                 os.remove(output_file_path)
                 print("No stock found to save, empty file created in all folders.")
                 self.telegram_bot_sendtext(
