@@ -2,8 +2,17 @@ import os
 import csv
 import time
 import requests
+import logging
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+import pytz
+
+# Setup logging
+logging.basicConfig(
+    filename="options_tracker.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 class OptionsTracker:
     def __init__(self):
@@ -18,6 +27,7 @@ class OptionsTracker:
         api_key = os.getenv("ALPACA_KEY")
         api_secret = os.getenv("ALPACA_SECRET")
         if not api_key or not api_secret:
+            logging.error("API credentials not found in .env file.")
             raise ValueError("API credentials not found in .env file.")
         return {
             "APCA-API-KEY-ID": api_key,
@@ -35,13 +45,14 @@ class OptionsTracker:
         }
         response = requests.get(self.options_url, headers=self.headers, params=params)
         if response.status_code != 200:
+            logging.error(f"Failed to fetch options for {ticker}: {response.text}")
             raise Exception(f"Failed to fetch options for {ticker}: {response.text}")
         return response.json().get("option_contracts", [])
 
     def save_initial_data(self, stocks):
         """Fetch and save initial options data."""
         for ticker in stocks:
-            print(f"[{datetime.now()}] Fetching initial data for {ticker}...")
+            logging.info(f"Fetching initial data for {ticker}...")
             options = self.fetch_put_options(ticker)
             for option in options:
                 symbol = option["symbol"]
@@ -55,7 +66,7 @@ class OptionsTracker:
     def calculate_and_save_differences(self, stocks):
         """Fetch new data, calculate differences, and log the results."""
         for ticker in stocks:
-            print(f"[{datetime.now()}] Fetching updated data for {ticker}...")
+            logging.info(f"Fetching updated data for {ticker}...")
             options = self.fetch_put_options(ticker)
             growth_data = {}
 
@@ -100,7 +111,7 @@ def main():
             break  # Exit after the first row
 
     if not stock:  # If no stock is found, log and exit
-        print(f"[{datetime.now()}] No stock found in stock_to_buy.csv. Exiting.")
+        logging.warning("No stock found in stock_to_buy.csv. Exiting.")
         return
 
     tracker = OptionsTracker()
@@ -109,13 +120,14 @@ def main():
     tracker.save_initial_data([stock])  # Single stock passed as a list
 
     # Step 2: Sleep until 15:35 Italian time
-    now = datetime.now()
+    italian_tz = pytz.timezone("Europe/Rome")
+    now = datetime.now(italian_tz)
     target_time = now.replace(hour=15, minute=35, second=0, microsecond=0)
     if now > target_time:
         target_time += timedelta(days=1)
 
     time_to_sleep = (target_time - now).total_seconds()
-    print(f"Sleeping until {target_time} ({time_to_sleep / 3600:.2f} hours)")
+    logging.info(f"Sleeping until {target_time} ({time_to_sleep / 3600:.2f} hours)")
     time.sleep(time_to_sleep)
 
     # Step 3: Calculate and save differences
