@@ -1,1 +1,2 @@
 2024-12-09 19:22:46.714196: SOUN241213P00001000 | Growth: 0.0 | Old Price: 0.01 | New Price: 0.01 | Name: SOUN Dec 13 2024 1 Put | Tradable: True | Expiration Date: 2024-12-13 | Strike Price: 1
+2024-12-09 20:24:39.582212: TSLA241213P00075000 | Growth: 0.0 | Old Price: 0.01 | New Price: 0.01 | Name: TSLA Dec 13 2024 75 Put | Tradable: True | Expiration Date: 2024-12-13 | Strike Price: 75
