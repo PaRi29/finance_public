@@ -270,7 +270,6 @@ class DividendDataExtractor:
                             folder, 'stock_to_buy.csv'), index=False)
                     except: 
                         pass
-                os.remove(output_file_path)
                 print("No stock found to save, empty file created in all folders.")
                 self.telegram_bot_sendtext(
                     f"No stock found to save, empty file created in all folders.")
