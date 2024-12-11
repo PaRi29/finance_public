@@ -54,6 +54,7 @@ class DividendTradingSimulator:
         self.is_short_open=False
         self.stop_simulation = False  # Flag to stop the simulation
         self.pricing_data_message = self.create_pricing_data_message()
+        self.start=True
 
     def run_simulation(self):
         self.initialize_csv()
@@ -63,6 +64,10 @@ class DividendTradingSimulator:
 
 
             start_time = self.get_next_time(hour=20, minute=0)
+            if self.start== True:
+                start_time = self.get_next_time(hour=21, minute=30)
+                self.start= False
+
             wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
             if wait_time > 0:
                 time.sleep(wait_time)
