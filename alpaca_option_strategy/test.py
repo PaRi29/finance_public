@@ -114,6 +114,21 @@ class OptionsTracker:
                         )
                     file.write("=" * 80 + "\n")
 
+def wait_until_evening():
+    """Wait until 20:00 Italian time."""
+    it_tz = pytz.timezone('Europe/Rome')
+    current_time = datetime.now(it_tz)
+    target_time = current_time.replace(hour=20, minute=0, second=0, microsecond=0)
+    
+    # If target time has passed today, wait for tomorrow's target time
+    if current_time > target_time:
+        target_time = target_time + timedelta(days=1)
+
+    # Calculate wait time in seconds
+    wait_seconds = (target_time - current_time).total_seconds()
+    logging.info(f"Waiting {wait_seconds} seconds until {target_time.strftime('%H:%M:%S')}")
+    time.sleep(wait_seconds)
+
 def main():
     # Load the single stock from CSV
     stock = None
@@ -129,7 +144,10 @@ def main():
 
     tracker = OptionsTracker()
 
-    # Get initial data immediately
+    # Wait until 20:00 Italian time before getting initial data
+    wait_until_evening()
+
+    # Get initial data
     logging.info(f"Fetching initial data for {stock}...")
     tracker.save_initial_data([stock])
 

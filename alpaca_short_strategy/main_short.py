@@ -227,36 +227,37 @@ class DividendTradingSimulator:
         url = f"https://finance.yahoo.com/quote/{symbol}/"
 
         headers = {
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
-            'cache-control': 'max-age=0',
-            'cookie': 'GUC=AQABCAFnNdZnZEIebARG&s=AQAAAPRvIT_T&g=ZzSNiw; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; PRF=t%3DTSLA%252BGC%253DF%252BGOLD-USD%252BSMCI%252BLEU%252BCCJ%252BSOUN%252BZM%252BVINP%252BDEA%252BMVST%252BWLKP%252BDKL%252BPLTR%252BRDDT; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg',
-            'priority': 'u=0, i',
-            'sec-ch-ua': '"Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'sec-fetch-dest': 'document',
-            'sec-fetch-mode': 'navigate',
-            'sec-fetch-site': 'same-origin',
-            'sec-fetch-user': '?1',
-            'sec-gpc': '1',
-            'upgrade-insecure-requests': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
+        'cache-control': 'max-age=0',
+        'cookie': 'GUC=AQABCAFnNdZnZEIebARG&s=AQAAAPRvIT_T&g=ZzSNiw; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; PRF=t%3DTSLA%252B%255EGSPC%252BIVVB11.SA%252BGC%253DF%252BPTVE%252BRSMDF%252BSOUN%252BGOLD-USD%252BSMCI%252BLEU%252BCCJ%252BZM%252BVINP%252BDEA%252BMVST; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg',
+        'priority': 'u=0, i',
+        'sec-ch-ua': '"Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-user': '?1',
+        'sec-gpc': '1',
+        'upgrade-insecure-requests': '1',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
         }
+
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
+            print("Error fetching the page.")
             return None
+
         soup = BeautifulSoup(response.text, 'html.parser')
-        pre_market_price_tag = soup.find('fin-streamer', {
-            'data-symbol': symbol,
-            'data-field': 'regularMarketPrice'
-        })
-        if pre_market_price_tag:
-            pre_market_price = pre_market_price_tag.get('data-value')
-            return float(pre_market_price)
+        # Locate the stock price element based on its class and data-testid
+        stock_price_element = soup.find("span", {"data-testid": "qsp-price"})
+
+        if stock_price_element:
+            return stock_price_element.text
         else:
+            print("Could not find the stock price element.")
             return None
-        
 
     async def connect_to_yahoo(self, symbol):
         """Connect to Yahoo Finance WebSocket and update self.current_price with feed data."""
@@ -470,35 +471,34 @@ class DividendTradingSimulator:
         url = f"https://finance.yahoo.com/quote/{symbol}/"
 
         headers = {
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
-            'cache-control': 'max-age=0',
-            'cookie': 'GUC=AQABCAFnNdZnZEIebARG&s=AQAAAPRvIT_T&g=ZzSNiw; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; PRF=t%3DTSLA%252BGC%253DF%252BGOLD-USD%252BSMCI%252BLEU%252BCCJ%252BSOUN%252BZM%252BVINP%252BDEA%252BMVST%252BWLKP%252BDKL%252BPLTR%252BRDDT; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg',
-            'priority': 'u=0, i',
-            'sec-ch-ua': '"Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'sec-fetch-dest': 'document',
-            'sec-fetch-mode': 'navigate',
-            'sec-fetch-site': 'same-origin',
-            'sec-fetch-user': '?1',
-            'sec-gpc': '1',
-            'upgrade-insecure-requests': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
+        'cache-control': 'max-age=0',
+        'cookie': 'GUC=AQABCAFnNdZnZEIebARG&s=AQAAAPRvIT_T&g=ZzSNiw; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; PRF=t%3DTSLA%252B%255EGSPC%252BIVVB11.SA%252BGC%253DF%252BPTVE%252BRSMDF%252BSOUN%252BGOLD-USD%252BSMCI%252BLEU%252BCCJ%252BZM%252BVINP%252BDEA%252BMVST; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg',
+        'priority': 'u=0, i',
+        'sec-ch-ua': '"Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-user': '?1',
+        'sec-gpc': '1',
+        'upgrade-insecure-requests': '1',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
         }
 
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
+            print("Error fetching the page.")
             return None
+
         soup = BeautifulSoup(response.text, 'html.parser')
-        pre_market_price_tag = soup.find('fin-streamer', {
-            'data-symbol': symbol,
-            'data-field': 'preMarketPrice'
-        })
-        if pre_market_price_tag:
-            pre_market_price = pre_market_price_tag.get('data-value')
-            return pre_market_price
+        stock_price_element = soup.find("span", {"data-testid": "qsp-pre-price"})
+        if stock_price_element:
+            return stock_price_element.text.strip()  # Strip any extra whitespace
         else:
+            print("Could not find the stock price element.")
             return None
         
     def get_stock_price_post(self, symbol):
@@ -521,17 +521,19 @@ class DividendTradingSimulator:
             'upgrade-insecure-requests': '1',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
         }
+
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             return None
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        post_market_price = soup.find('fin-streamer', {'data-field': 'postMarketPrice'})
-        if post_market_price:
-            return post_market_price['data-value']
-        else:
-            return None
+        stock_price_element = soup.find("span", {"data-testid": "qsp-post-price"})
 
+        if stock_price_element:
+            return stock_price_element.text
+        else:
+            print("Could not find the stock price element.")
+            return None        
 
     def get_next_sell_time(self):
         if self.has_pre == True:
