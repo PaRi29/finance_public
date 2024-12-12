@@ -50,15 +50,10 @@ class DividendTradingSimulator:
         self.tax_rate = 0.27  # 27% tax rate
         self.filled_price = None
 
-        self.start=True
-
     def run_simulation(self):
         self.initialize_csv()
         while self.current_simulation_day < self.simulation_days:
-            start_time = self.get_next_time(hour=20, minute=0)
-            if self.start== True:
-                start_time = self.get_next_time(hour=21, minute=30)
-                self.start= False
+            start_time = self.get_next_time(hour=20, minute=30)
                 
             wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 

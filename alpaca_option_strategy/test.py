@@ -118,7 +118,7 @@ def wait_until_evening():
     """Wait until 20:00 Italian time."""
     it_tz = pytz.timezone('Europe/Rome')
     current_time = datetime.now(it_tz)
-    target_time = current_time.replace(hour=15, minute=56, second=0, microsecond=0)
+    target_time = current_time.replace(hour=20, minute=30, second=0, microsecond=0)
     
     # If target time has passed today, wait for tomorrow's target time
     if current_time > target_time:
