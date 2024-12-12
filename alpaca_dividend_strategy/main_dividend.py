@@ -151,7 +151,7 @@ class DividendTradingSimulator:
                 time.sleep(wait_time)
 
 
-            self.open_price = float(self.get_stock_price_intraday(self.stock_to_buy))
+            self.open_price = float(self.get_stock_price(self.stock_to_buy))
             print(self.open_price) 
             limit_price= self.open_price*1.003
             rounded_limit_price = round(limit_price, 2)
@@ -195,12 +195,9 @@ class DividendTradingSimulator:
                         time.sleep(0.5)
 
                     try:
-                        self.open_price = float(self.get_stock_price_pre(self.stock_to_buy))
+                        self.open_price = float(self.get_stock_price(self.stock_to_buy))
                     except:
-                        try:
-                            self.open_price= float(self.get_stock_price_post((self.stock_to_buy)))
-                        except:
-                            self.open_price= float(self.get_stock_price_intraday((self.stock_to_buy)))
+                        self.open_price = 10
 
                     shares_bought = self.budget // (self.open_price)
                     limit_price= self.open_price*0.98
@@ -229,13 +226,9 @@ class DividendTradingSimulator:
                         time.sleep(0.5)
 
                     try:
-                        self.open_price = float(self.get_stock_price_pre(self.stock_to_buy))
+                        self.open_price = float(self.get_stock_price(self.stock_to_buy))
                     except:
-                        try:
-                            self.open_price= float(self.get_stock_price_post((self.stock_to_buy)))
-                        except:
-                            self.open_price= float(self.get_stock_price_intraday((self.stock_to_buy)))
-
+                        self.open_price = 10
                     shares_bought = self.budget // (self.open_price)
                     limit_price= self.open_price*0.98
                     rounded_limit_price = round(limit_price, 2)
@@ -259,9 +252,9 @@ class DividendTradingSimulator:
                     logging.info(wait_time)
                     time.sleep(wait_time)
                     self.cancel_orders()
-                    time.sleep(5)
+                    time.sleep(2)
 
-                    self.close_price = float(self.get_stock_price_intraday(self.stock_to_buy))
+                    self.close_price = float(self.get_stock_price(self.stock_to_buy))
                     limit_price= self.close_price*0.98
                     rounded_limit_price = round(limit_price, 2)
                     self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
@@ -367,109 +360,33 @@ class DividendTradingSimulator:
             pass
         return stock_name, stock_info['Price'], stock_info['Yield Price'], stock_info['Has Pre']
 
-    def get_stock_price_intraday(self, symbol):
-        url = f"https://finance.yahoo.com/quote/{symbol}/"
-
+    def get_stock_price(self, tiker):
+        url = "https://api.nasdaq.com/api/quote/"+tiker+"/info?assetclass=stocks"
+        payload = {}
         headers = {
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'accept': 'application/json, text/plain, */*',
         'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
-        'cache-control': 'max-age=0',
-        'cookie': 'GUC=AQABCAFnNdZnZEIebARG&s=AQAAAPRvIT_T&g=ZzSNiw; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; PRF=t%3DTSLA%252B%255EGSPC%252BIVVB11.SA%252BGC%253DF%252BPTVE%252BRSMDF%252BSOUN%252BGOLD-USD%252BSMCI%252BLEU%252BCCJ%252BZM%252BVINP%252BDEA%252BMVST; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg',
-        'priority': 'u=0, i',
+        'origin': 'https://www.nasdaq.com',
+        'priority': 'u=1, i',
+        'referer': 'https://www.nasdaq.com/',
         'sec-ch-ua': '"Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
         'sec-ch-ua-mobile': '?0',
         'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'document',
-        'sec-fetch-mode': 'navigate',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-user': '?1',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-site',
         'sec-gpc': '1',
-        'upgrade-insecure-requests': '1',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        #'Cookie': 'ak_bmsc=DEB43FB40B85B2785EF5A5C447453225~000000000000000000000000000000~YAAQSX4ZuMyKA5qTAQAAMR13thphIDapuahw3uBVXsCwAdSn25qP7uboUcm/JxLVYtN44x5/HwvWOMLGvCTuuRMo24xY2sIrt7B1USF565klavME/yN5DwWn++3WfQfRGgq+ayteyxx/Pgre/sitdxvUU/WqRHAPLTAiAtgmBLjNLXfhJnWndN11X/o6xtVvb4SRvIN++KC00h8Mm8XBojI/DB7T1kv9vKqA0FITb+thFAe9LDKi/4KrlYIQPypi6DDKbuDqSuU6+0BLBz3LL4fgXSURTPRaM8s/X9jezaM83yNL8/GOTKYkhKqx4dlIdHVIWVAAb3Bi+tafjFYVbVnGkWv06IeoSw==; bm_sv=5F7112C9BD34601BE7A9238A29B6B470~YAAQSX4ZuNWMA5qTAQAA+UJ3thrNjluK0cxdMBGqQWdPP5XdE70i1eB8nMLcD9rgGN7JrS0TILiD8Jhp2N1DfezcZnhNt8osfwmFA/ORrh/NPu8v2pxz8+TKevTHYrQzs9LBZhIkf/4yNJlz4jZRN15/wvan1zJItied+3VX2TrYAhgHrFRf8hrnFZDYcysNL9wepZlRbIzXrtN6Dgg1q/xh9XFln7y//k16H6JDZVssW6bpvYER9gl4CFUzgi/m~1; akaalb_ALB_Default=~op=ao_api__east1:ao_api_east1|~rv=34~m=ao_api_east1:0|~os=ff51b6e767de05e2054c5c99e232919a~id=a6a87be6083abadbf68a65760892cbd0'
         }
+        try:
+            response = requests.request("GET", url, headers=headers, data=payload)
+            response.raise_for_status()  # Raise an error for bad responses
+            data = json.loads(response.text) 
+            return(float(str(data["data"]["primaryData"]["lastSalePrice"]).replace("$","")))
+        except :
+            return None  # Return None or handle the error as needed
 
-        response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            print("Error fetching the page.")
-            return None
-
-        soup = BeautifulSoup(response.text, 'html.parser')
-        # Locate the stock price element based on its class and data-testid
-        stock_price_element = soup.find("span", {"data-testid": "qsp-price"})
-
-        if stock_price_element:
-            return stock_price_element.text
-        else:
-            print("Could not find the stock price element.")
-            return None
-
-    def get_stock_price_pre(self, symbol):
-        url = f"https://finance.yahoo.com/quote/{symbol}/"
-
-        headers = {
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
-        'cache-control': 'max-age=0',
-        'cookie': 'GUC=AQABCAFnNdZnZEIebARG&s=AQAAAPRvIT_T&g=ZzSNiw; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; PRF=t%3DTSLA%252B%255EGSPC%252BIVVB11.SA%252BGC%253DF%252BPTVE%252BRSMDF%252BSOUN%252BGOLD-USD%252BSMCI%252BLEU%252BCCJ%252BZM%252BVINP%252BDEA%252BMVST; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg',
-        'priority': 'u=0, i',
-        'sec-ch-ua': '"Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'document',
-        'sec-fetch-mode': 'navigate',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-user': '?1',
-        'sec-gpc': '1',
-        'upgrade-insecure-requests': '1',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
-        }
-
-        response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            print("Error fetching the page.")
-            return None
-
-        soup = BeautifulSoup(response.text, 'html.parser')
-        stock_price_element = soup.find("span", {"data-testid": "qsp-pre-price"})
-        if stock_price_element:
-            return stock_price_element.text.strip()  # Strip any extra whitespace
-        else:
-            print("Could not find the stock price element.")
-            return None
-
-    def get_stock_price_post(self, symbol):
-        url = f"https://finance.yahoo.com/quote/{symbol}/"
-
-        headers = {
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'accept-language': 'en-US,en;q=0.9,it-IT;q=0.8,it;q=0.7,en-GB;q=0.6',
-            'cache-control': 'max-age=0',
-            'cookie': 'GUC=AQABCAFnNdZnZEIebARG&s=AQAAAPRvIT_T&g=ZzSNiw; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; A1S=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAHWNWdkZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAimQWj3PVnnOXneziZ_IzaM; PRF=t%3DTSLA%252BGC%253DF%252BGOLD-USD%252BSMCI%252BLEU%252BCCJ%252BSOUN%252BZM%252BVINP%252BDEA%252BMVST%252BWLKP%252BDKL%252BPLTR%252BRDDT; A1=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; A3=d=AQABBGE0d2MCEBTQP0_77ONRfiPRkQ9IyVcFEgABCAETJWdMZ-dVb2UBAiAAAAcIYTR3Yw9IyVc&S=AQAAAgUGiq5KjXPmkEc267014tc; GUC=AQABCAFnJRNnTEIebARG&s=AQAAAE3srCJw&g=ZyPGKg',
-            'priority': 'u=0, i',
-            'sec-ch-ua': '"Brave";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'sec-fetch-dest': 'document',
-            'sec-fetch-mode': 'navigate',
-            'sec-fetch-site': 'same-origin',
-            'sec-fetch-user': '?1',
-            'sec-gpc': '1',
-            'upgrade-insecure-requests': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
-        }
-
-        response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            return None
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        stock_price_element = soup.find("span", {"data-testid": "qsp-post-price"})
-
-        if stock_price_element:
-            return stock_price_element.text
-        else:
-            print("Could not find the stock price element.")
-            return None
 
     async def connect_to_yahoo(self, symbol):
         """Connect to Yahoo Finance WebSocket and update self.current_price with feed data."""

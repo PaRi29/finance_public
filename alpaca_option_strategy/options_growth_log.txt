@@ -1,8 +1,8 @@
 
-=== Top 5 Options by Growth Percentage for FRO at 2024-12-11 14:33:00.465230 ===
-FRO250221P00014000 | Growth %: 54.55% | Growth: $0.30 | Old Price: $0.55 | New Price: $0.85 | Name: FRO Feb 21 2025 14 Put | Tradable: True | Expiration Date: 2025-02-21 | Strike Price: 14
-FRO241220P00015000 | Growth %: 40.00% | Growth: $0.20 | Old Price: $0.50 | New Price: $0.70 | Name: FRO Dec 20 2024 15 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 15
-FRO241220P00017000 | Growth %: 38.24% | Growth: $0.65 | Old Price: $1.70 | New Price: $2.35 | Name: FRO Dec 20 2024 17 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 17
-FRO241220P00019000 | Growth %: 35.99% | Growth: $1.13 | Old Price: $3.14 | New Price: $4.27 | Name: FRO Dec 20 2024 19 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 19
-FRO241220P00016000 | Growth %: 27.50% | Growth: $0.33 | Old Price: $1.20 | New Price: $1.53 | Name: FRO Dec 20 2024 16 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 16
+=== Top 5 Options by Growth Percentage for SFL at 2024-12-12 15:53:01.075001 ===
+SFL241220P00005000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.01 | New Price: $0.01 | Name: SFL Dec 20 2024 5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 5
+SFL241220P00007500 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.03 | New Price: $0.03 | Name: SFL Dec 20 2024 7.5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 7.5
+SFL241220P00010000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.11 | New Price: $0.11 | Name: SFL Dec 20 2024 10 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 10
+SFL241220P00012500 | Growth %: 0.00% | Growth: $0.00 | Old Price: $2.35 | New Price: $2.35 | Name: SFL Dec 20 2024 12.5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 12.5
+SFL241220P00015000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $4.40 | New Price: $4.40 | Name: SFL Dec 20 2024 15 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 15
 ================================================================================

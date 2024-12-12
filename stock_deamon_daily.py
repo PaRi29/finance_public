@@ -244,7 +244,7 @@ class DividendDataExtractor:
                         'Has Pre': final_stock['Has Pre']
                     })
                 folders = ['finance_public/alpaca_dividend_strategy',
-                           'finance_public/alpaca_short_strategy']
+                           'finance_public/alpaca_short_strategy','finance_public/alpaca_option_strategy' ]
                 for folder in folders:
                     shutil.copy(output_file_path, os.path.join(
                         folder, 'stock_to_buy.csv'))
