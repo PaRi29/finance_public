@@ -27,7 +27,7 @@ from google.protobuf import descriptor_pool, message_factory, descriptor_pb2
 class DividendTradingSimulator:
     def __init__(self, initial_budget=1000, simulation_days=30, commission=1.0, short_borrow_rate=0.003):
         self.ALPACA_API=tradeapi.REST(ALPACA_API_KEY, API_SECRET, ALPACA_ENDPOINT, api_version='v2')  
-        self.budget = float(self.ALPACA_API.get_account().equity)- 25000
+        self.budget = float(self.ALPACA_API.get_account().equity)- 24845
         logging.info(self.budget)
         self.dividend_balance = 0
         self.simulation_days = simulation_days
@@ -238,7 +238,6 @@ class DividendTradingSimulator:
                         self.is_short_open= False
 
             time.sleep(60)     
-
             if not self.is_position_closed:
                 first_afternoon= self.get_next_time(hour=15, minute=30)
                 wait_time = (first_afternoon - datetime.datetime.now(self.italy_tz)).total_seconds()
@@ -263,6 +262,9 @@ class DividendTradingSimulator:
                 wait_time = (
                     sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
                 logging.info(str(wait_time))
+                if wait_time > 0:
+                    time.sleep(wait_time)
+
                 asyncio.run(self.run_short_selling(self.stock_to_buy,self.open_price,shares_bought))
                 logging.info(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
                 self.telegram_bot_sendtext(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
@@ -275,7 +277,7 @@ class DividendTradingSimulator:
             self.dividend_balance += net_dividend
 
             prev_budget=self.budget
-            self.budget = float(self.ALPACA_API.get_account().equity)- 25000
+            self.budget = float(self.ALPACA_API.get_account().equity)- 24845
             profit_loss= self.budget-prev_budget
 
             transaction = {

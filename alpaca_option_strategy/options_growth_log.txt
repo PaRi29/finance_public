@@ -6,3 +6,10 @@ SFL241220P00010000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.11 | New Pr
 SFL241220P00012500 | Growth %: 0.00% | Growth: $0.00 | Old Price: $2.35 | New Price: $2.35 | Name: SFL Dec 20 2024 12.5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 12.5
 SFL241220P00015000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $4.40 | New Price: $4.40 | Name: SFL Dec 20 2024 15 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 15
 ================================================================================
+=== Top 5 Options by Growth Percentage for SFL at 2024-12-12 15:53:01.075001 ===
+SFL241220P00005000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.01 | New Price: $0.01 | Name: SFL Dec 20 2024 5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 5
+SFL241220P00007500 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.03 | New Price: $0.03 | Name: SFL Dec 20 2024 7.5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 7.5
+SFL241220P00010000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.11 | New Price: $0.11 | Name: SFL Dec 20 2024 10 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 10
+SFL241220P00012500 | Growth %: 0.00% | Growth: $0.00 | Old Price: $2.35 | New Price: $2.35 | Name: SFL Dec 20 2024 12.5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 1>
+SFL241220P00015000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $4.40 | New Price: $4.40 | Name: SFL Dec 20 2024 15 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 15
+================================================================================

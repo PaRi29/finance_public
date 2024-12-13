@@ -154,7 +154,13 @@ def main():
     # Get current time in Italy
     it_tz = pytz.timezone('Europe/Rome')
     current_time = datetime.now(it_tz)
-    target_time = current_time.replace(hour=15, minute=57, second=0, microsecond=0)
+
+    if current_time.weekday() != 4:  # If today is not Friday
+        target_time = current_time.replace(hour=15, minute=30, second=0, microsecond=0)
+    else:  # If today is Friday, set target time to 15:30 of next Monday
+        target_time = current_time + timedelta(days=3)
+        target_time = target_time.replace(hour=15, minute=30, second=0, microsecond=0)
+        print(target_time)
     
     # If target time has passed today, wait for tomorrow's target time
     if current_time > target_time:
