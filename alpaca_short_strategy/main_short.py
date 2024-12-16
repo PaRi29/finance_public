@@ -27,7 +27,6 @@ class DividendTradingSimulator:
         self.simulation_days = simulation_days
         self.current_simulation_day = 0
         self.transactions = []
-        self.csv_file = Path("dividend_trading_results.csv")
         self.italy_tz = pytz.timezone('Europe/Rome')
         self.stock_to_sell = None
         self.sell_price=0
@@ -51,7 +50,6 @@ class DividendTradingSimulator:
         self.filled_price = None
 
     def run_simulation(self):
-        self.initialize_csv()
         while self.current_simulation_day < self.simulation_days:
             start_time = self.get_next_time(hour=20, minute=30)
                 
@@ -90,13 +88,15 @@ class DividendTradingSimulator:
                     continue
 
             self.stock_to_sell, price_, self.dividend_per_action, self.has_pre = stock_info
-            logging.info(f"{self.stock_to_sell}, {price_}, {self.dividend_per_action}, {self.has_pre}")
             close_market_time=self.get_next_time(hour=1, minute=59)
             wait_time = (close_market_time - datetime.datetime.now(self.italy_tz)).total_seconds()
             if wait_time > 0:
                 logging.info(f"In attesa fino alle {close_market_time} per reperire l'ultimo prezzo...")
                 time.sleep(wait_time)
             self.sell_price = float(self.get_stock_price(self.stock_to_sell))
+
+            self.telegram_bot_sendtext(self.sell_price)
+            logging.info(f"{self.stock_to_sell}, {self.sell_price}, {self.dividend_per_action}, {self.has_pre}")
 
 
             if datetime.datetime.now(self.italy_tz).weekday() != 5: 
@@ -113,7 +113,7 @@ class DividendTradingSimulator:
   
             attempts = 0  # Contatore per i tentativi
             success = False  # Flag per il successo della vendita
-            diminuendo= 0.5                
+            diminuendo= 0.7                
 
             while attempts < 3 and not success:  # Prova fino a 3 volte
                 self.cancel_orders()
@@ -124,6 +124,8 @@ class DividendTradingSimulator:
                 
                 shares_sold = self.budget // (self.sell_price)
                 limit_price = self.sell_price - diminuendo * (self.dividend_per_action / self.sell_price)
+
+                self.telegram_bot_sendtext(limit_price)
                 rounded_limit_price = round(limit_price, 2)
                 logging.info(f"Tentativo {attempts + 1}: Vendita di {shares_sold} azioni a ${rounded_limit_price:.2f}")
                 
@@ -191,7 +193,6 @@ class DividendTradingSimulator:
             }
 
             self.transactions.append(transaction)
-            self.save_transaction_to_csv(transaction)
             
             logging.info(f"Profitto/Perdita: ${profit_loss:.2f}")
             logging.info(f"Nuovo budget: ${self.budget:.2f}")
@@ -420,18 +421,6 @@ class DividendTradingSimulator:
         except Exception as e:
             logging.info(f"Failed to decode Protobuf message: {e}")
             return None
-
-    def initialize_csv(self):
-        headers = ["day", "stock", "shares",  "sell_price","buy_price", "profit_loss", 
-                   "budget"]
-        with open(self.csv_file, mode='w', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames=headers)
-            writer.writeheader()
-
-    def save_transaction_to_csv(self, transaction):
-        with open(self.csv_file, mode='a', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames=transaction.keys())
-            writer.writerow(transaction)
 
     def get_stock_info_for_tomorrow(self):
         stock_info = self.stock_data[self.stock_data['Date'] == self.tomorrow_date_number]

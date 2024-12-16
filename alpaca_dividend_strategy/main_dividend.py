@@ -33,7 +33,6 @@ class DividendTradingSimulator:
         self.simulation_days = simulation_days
         self.current_simulation_day = 0
         self.transactions = []
-        self.csv_file = Path("dividend_trading_results.csv")
         self.italy_tz = pytz.timezone('Europe/Rome')
         self.stock_to_buy = None
         self.has_pre = True
@@ -56,7 +55,6 @@ class DividendTradingSimulator:
         self.pricing_data_message = self.create_pricing_data_message()
         
     def run_simulation(self):
-        self.initialize_csv()
         while self.current_simulation_day < self.simulation_days:
             self.is_position_closed=False
             self.is_short_open=False
@@ -293,7 +291,6 @@ class DividendTradingSimulator:
             }
 
             self.transactions.append(transaction)
-            self.save_transaction_to_csv(transaction)
 
             logging.info(f"Profitto/Perdita: ${profit_loss:.2f}")
             logging.info(f"Dividendo netto: ${net_dividend:.2f}")
@@ -332,18 +329,6 @@ class DividendTradingSimulator:
         self.telegram_bot_sendtext(f"Bilancio P/L: ${total_profit_loss:.2f}")
         self.telegram_bot_sendtext(
             f"Bilancio dividendi: ${self.dividend_balance:.2f}")
-
-    def initialize_csv(self):
-        headers = ["day", "stock", "shares", "buy_price", "sell_price", "profit_loss",
-                   "dividend", "short_profit", "budget", "dividend_balance"]
-        with open(self.csv_file, mode='w', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames=headers)
-            writer.writeheader()
-
-    def save_transaction_to_csv(self, transaction):
-        with open(self.csv_file, mode='a', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames=transaction.keys())
-            writer.writerow(transaction)
 
     def get_stock_info_for_tomorrow(self):
         stock_info = self.stock_data[self.stock_data['Date']
