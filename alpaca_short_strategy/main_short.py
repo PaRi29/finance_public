@@ -113,7 +113,7 @@ class DividendTradingSimulator:
   
             attempts = 0  # Contatore per i tentativi
             success = False  # Flag per il successo della vendita
-            diminuendo= 0.7                
+            diminuendo= 0.9                
 
             while attempts < 3 and not success:  # Prova fino a 3 volte
                 self.cancel_orders()
@@ -145,14 +145,14 @@ class DividendTradingSimulator:
                         logging.info("Vendita allo scoperto non riuscita, riprovando fra 5 minuti...")
                         time.sleep(300)  # Dorme 5 minuti
                         attempts += 1
-                        diminuendo += 0.1
+                        diminuendo += 0.3
 
                 except Exception as e:
                     logging.info(f"Errore durante la vendita allo scoperto: {e}")
                     logging.info("Riprovando fra 5 minuti...")
                     time.sleep(300)  # Dorme 5 minuti
                     attempts += 1
-                    diminuendo += 0.1
+                    diminuendo += 0.3
 
             if not success:  # Se dopo 3 tentativi non è riuscito
                 logging.info("saltando il giorno")
