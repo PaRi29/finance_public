@@ -49,6 +49,7 @@ class DividendTradingSimulator:
         self.close_price=0
         self.open_price=0
         self.current_price=None
+        self.last_price=10
         self.is_position_closed=False
         self.is_short_open=False
         self.stop_simulation = False  # Flag to stop the simulation
@@ -58,7 +59,6 @@ class DividendTradingSimulator:
         while self.current_simulation_day < self.simulation_days:
             self.is_position_closed=False
             self.is_short_open=False
-
 
             start_time = self.get_next_time(hour=20, minute=30)
 
@@ -173,6 +173,17 @@ class DividendTradingSimulator:
                 continue
             
 
+            close_market_time=self.get_next_time(hour=1, minute=59)
+            wait_time = (close_market_time - datetime.datetime.now(self.italy_tz)).total_seconds()
+            if wait_time > 0:
+                logging.info(f"In attesa fino alle {close_market_time} per reperire l'ultimo prezzo...")
+                time.sleep(wait_time)
+            try:
+                self.last_price = float(self.get_stock_price(self.stock_to_buy))
+            except: 
+                self.last_price = 100
+
+
             #wait_time = (self.get_next_time(hour=10, minute=0) - datetime.datetime.now(self.italy_tz)).total_seconds()# controllo del venerdì qua
             if datetime.datetime.now(self.italy_tz).weekday() == 4:  # Venerdì
                 monday_morning = self.get_next_time(hour=10, minute=0) + datetime.timedelta(days=2)
@@ -263,7 +274,7 @@ class DividendTradingSimulator:
                 if wait_time > 0:
                     time.sleep(wait_time)
 
-                asyncio.run(self.run_short_selling(self.stock_to_buy,self.open_price,shares_bought))
+                asyncio.run(self.run_short_selling(self.stock_to_buy,self.last_price,shares_bought))
                 logging.info(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
                 self.telegram_bot_sendtext(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
 
@@ -402,7 +413,7 @@ class DividendTradingSimulator:
         borrow_cost = shares_sold * initial_price * self.short_borrow_rate
         stop_gain = -0.5 * self.dividend_per_action / initial_price
         stop_loss = 0.01
-        market_close_time = datetime.time(21, 50)
+        market_close_time = datetime.time(18, 50)
 
         while not self.stop_simulation:
             current_time = datetime.datetime.now(self.italy_tz).time()

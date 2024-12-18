@@ -113,7 +113,7 @@ class DividendTradingSimulator:
   
             attempts = 0  # Contatore per i tentativi
             success = False  # Flag per il successo della vendita
-            diminuendo= 0.9                
+            diminuendo= 1.2                
 
             while attempts < 3 and not success:  # Prova fino a 3 volte
                 self.cancel_orders()
