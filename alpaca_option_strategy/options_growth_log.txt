@@ -1,9 +1,8 @@
-
 === Top 5 Options by Growth Percentage for SFL at 2024-12-12 15:53:01.075001 ===
 SFL241220P00005000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.01 | New Price: $0.01 | Name: SFL Dec 20 2024 5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 5
 SFL241220P00007500 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.03 | New Price: $0.03 | Name: SFL Dec 20 2024 7.5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 7.5
 SFL241220P00010000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.11 | New Price: $0.11 | Name: SFL Dec 20 2024 10 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 10
-SFL241220P00012500 | Growth %: 0.00% | Growth: $0.00 | Old Price: $2.35 | New Price: $2.35 | Name: SFL Dec 20 2024 12.5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 12.5
+SFL241220P00012500 | Growth %: 0.00% | Growth: $0.00 | Old Price: $2.35 | New Price: $2.35 | Name: SFL Dec 20 2024 12.5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 1>
 SFL241220P00015000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $4.40 | New Price: $4.40 | Name: SFL Dec 20 2024 15 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 15
 ================================================================================
 === Top 5 Options by Growth Percentage for SFL at 2024-12-12 15:53:01.075001 ===
@@ -12,4 +11,12 @@ SFL241220P00007500 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.03 | New Pr
 SFL241220P00010000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $0.11 | New Price: $0.11 | Name: SFL Dec 20 2024 10 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 10
 SFL241220P00012500 | Growth %: 0.00% | Growth: $0.00 | Old Price: $2.35 | New Price: $2.35 | Name: SFL Dec 20 2024 12.5 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 1>
 SFL241220P00015000 | Growth %: 0.00% | Growth: $0.00 | Old Price: $4.40 | New Price: $4.40 | Name: SFL Dec 20 2024 15 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 15
+================================================================================
+
+=== Top 5 Options by Growth Percentage for UWMC at 2024-12-19 14:50:00.203756 ===
+UWMC241220P00006000 | Growth %: 100.00% | Growth: $0.20 | Old Price: $0.20 | New Price: $0.40 | Name: UWMC Dec 20 2024 6 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 6
+UWMC250110P00006000 | Growth %: 87.50% | Growth: $0.21 | Old Price: $0.24 | New Price: $0.45 | Name: UWMC Jan 10 2025 6 Put | Tradable: True | Expiration Date: 2025-01-10 | Strike Price: 6
+UWMC241227P00006000 | Growth %: 60.00% | Growth: $0.15 | Old Price: $0.25 | New Price: $0.40 | Name: UWMC Dec 27 2024 6 Put | Tradable: True | Expiration Date: 2024-12-27 | Strike Price: 6
+UWMC241220P00007000 | Growth %: 46.67% | Growth: $0.35 | Old Price: $0.75 | New Price: $1.10 | Name: UWMC Dec 20 2024 7 Put | Tradable: True | Expiration Date: 2024-12-20 | Strike Price: 7
+UWMC250221P00006000 | Growth %: 35.42% | Growth: $0.17 | Old Price: $0.48 | New Price: $0.65 | Name: UWMC Feb 21 2025 6 Put | Tradable: True | Expiration Date: 2025-02-21 | Strike Price: 6
 ================================================================================
