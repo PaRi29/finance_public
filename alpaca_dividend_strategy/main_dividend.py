@@ -61,11 +61,7 @@ class DividendTradingSimulator:
             self.is_short_open=False
 
             start_time = self.get_next_time(hour=20, minute=30)
-
-            wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
-            if wait_time > 0:
-                time.sleep(wait_time)
-                time.sleep(3)
+            self.sleep_until(start_time)
 
             logging.info(f"Giorno {self.current_simulation_day + 1}")
             self.telegram_bot_sendtext(
@@ -110,24 +106,17 @@ class DividendTradingSimulator:
                         "non dovrei essere qua, oggi è sabato, torno a dormire fino e lunedì...")
                     self.telegram_bot_sendtext(
                         "non dovrei essere qua, oggi è sabato, torno a dormire fino e lunedì...")
-                    monday_morning = self.get_next_sell_time() + datetime.timedelta(days=1)
-                    wait_time = (
-                        monday_morning - datetime.datetime.now(self.italy_tz)).total_seconds()
-                    if wait_time > 0:
-                        logging.info(wait_time)
-                        time.sleep(wait_time)
+                    monday_morning = self.get_next_time(hour=10, minute=0) + datetime.timedelta(days=1)
+                    self.sleep_until(monday_morning)
 
             elif stock_info is None and datetime.datetime.now(self.italy_tz).weekday() == 6:
                     logging.info(
                         "non dovrei essere qua, oggi è domenica, torno a dormire fino a lunedì...")
                     self.telegram_bot_sendtext(
                         "non dovrei essere qua, oggi è domenica, torno a dormire fino a lunedì...")
-                    monday_morning = self.get_next_sell_time() 
-                    wait_time = (
-                        monday_morning - datetime.datetime.now(self.italy_tz)).total_seconds()
-                    if wait_time > 0:
-                        logging.info(wait_time)
-                        time.sleep(wait_time)
+                    monday_morning = self.get_next_time(hour=10, minute=0)
+                    self.sleep_until(monday_morning)
+
 
             self.stock_to_buy, price_, self.dividend_per_action, self.has_pre = stock_info
             
@@ -136,13 +125,7 @@ class DividendTradingSimulator:
                           self.dividend_per_action, self.has_pre)
 
             buy_time = self.get_next_time(hour=21, minute=58)
-            wait_time = (
-                buy_time - datetime.datetime.now(self.italy_tz)).total_seconds()
-            logging.info(wait_time)
-
-            if wait_time > 0:
-                logging.info(f"In attesa fino alle {buy_time} per l'acquisto...")
-                time.sleep(wait_time)
+            self.sleep_until(buy_time)
 
 
             self.open_price = float(self.get_stock_price(self.stock_to_buy))
@@ -174,106 +157,87 @@ class DividendTradingSimulator:
             
 
             close_market_time=self.get_next_time(hour=1, minute=59)
-            wait_time = (close_market_time - datetime.datetime.now(self.italy_tz)).total_seconds()
-            if wait_time > 0:
-                logging.info(f"In attesa fino alle {close_market_time} per reperire l'ultimo prezzo...")
-                time.sleep(wait_time)
+            self.sleep_until(close_market_time)
+
             try:
                 self.last_price = float(self.get_stock_price(self.stock_to_buy))
             except: 
                 self.last_price = 100
 
 
-            #wait_time = (self.get_next_time(hour=10, minute=0) - datetime.datetime.now(self.italy_tz)).total_seconds()# controllo del venerdì qua
             if datetime.datetime.now(self.italy_tz).weekday() == 4:  # Venerdì
                 monday_morning = self.get_next_time(hour=10, minute=0) + datetime.timedelta(days=2)
-                wait_time = (monday_morning - datetime.datetime.now(self.italy_tz)).total_seconds()
-                if wait_time > 0:
-                    logging.info(f"In attesa fino alle {monday_morning} per chiudere la posizione e vendere allo scoperto...")
-                    logging.info(wait_time)
-                    time.sleep(wait_time)
+                self.sleep_until(monday_morning)
 
-                    no_hope_time = self.get_next_time(hour=10, minute=59)
-                    while datetime.datetime.now(self.italy_tz) < no_hope_time:
-                        if self.is_easy_to_short(self.stock_to_buy):
-                            break
-                        time.sleep(0.5)
+                no_hope_time = self.get_next_time(hour=10, minute=59)
+                while datetime.datetime.now(self.italy_tz) < no_hope_time:
+                    if self.is_easy_to_short(self.stock_to_buy):
+                        break
+                    time.sleep(0.5)
 
-                    try:
-                        self.open_price = float(self.get_stock_price(self.stock_to_buy))
-                    except:
-                        self.open_price = 10
+                try:
+                    self.open_price = float(self.get_stock_price(self.stock_to_buy))
+                except:
+                    self.open_price = 10
 
-                    shares_bought = self.budget // (self.open_price)
-                    limit_price= self.open_price*0.98
-                    rounded_limit_price = round(limit_price, 2)
+                shares_bought = self.budget // (self.open_price)
+                limit_price= self.open_price*0.98
+                rounded_limit_price = round(limit_price, 2)
 
-                    self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
-                    time.sleep(2)
-                    if self.is_position_closed:
-                        self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
-                    else:
-                        self.is_short_open = False
+                self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
+                time.sleep(2)
+                if self.is_position_closed:
+                    self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                else:
+                    self.is_short_open = False
 
             else:  # Altri giorni della settimana
                 next_morning = self.get_next_time(hour=10, minute=0)
-                wait_time = (next_morning - datetime.datetime.now(self.italy_tz)).total_seconds()
-                if wait_time > 0:
-                
-                    logging.info(f"In attesa fino alle {next_morning} per chiudere la posizione e vendere allo scoperto...")
-                    logging.info(wait_time)
-                    time.sleep(wait_time)
+                self.sleep_until(next_morning)
 
-                    no_hope_time = self.get_next_time(hour=10, minute=59)
-                    while datetime.datetime.now(self.italy_tz) < no_hope_time:
-                        if self.is_easy_to_short(self.stock_to_buy):
-                            break
-                        time.sleep(0.5)
+                no_hope_time = self.get_next_time(hour=10, minute=59)
+                while datetime.datetime.now(self.italy_tz) < no_hope_time:
+                    if self.is_easy_to_short(self.stock_to_buy):
+                        break
+                    time.sleep(0.5)
 
-                    try:
-                        self.open_price = float(self.get_stock_price(self.stock_to_buy))
-                    except:
-                        self.open_price = 10
-                    shares_bought = self.budget // (self.open_price)
-                    limit_price= self.open_price*0.98
-                    rounded_limit_price = round(limit_price, 2)
+                try:
+                    self.open_price = float(self.get_stock_price(self.stock_to_buy))
+                except:
+                    self.open_price = 10
+                shares_bought = self.budget // (self.open_price)
+                limit_price= self.open_price*0.98
+                rounded_limit_price = round(limit_price, 2)
 
 
-                    self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
-                    time.sleep(2)
-                    if self.is_position_closed:
-                        self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
-                    else:
-                        self.is_short_open= False
+                self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
+                time.sleep(2)
+                if self.is_position_closed:
+                    self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                else:
+                    self.is_short_open= False
 
             time.sleep(60)     
             if not self.is_position_closed:
                 first_afternoon= self.get_next_time(hour=15, minute=30)
-                wait_time = (first_afternoon - datetime.datetime.now(self.italy_tz)).total_seconds()
-                if wait_time > 0:
-                    logging.info(f"la posizione non era ancora chiusa, aspettiamo le 15:30 e speriamo, non aprirò uno short")
-                    self.telegram_bot_sendtext(f"la posizione non era ancora chiusa, aspettiamo le 15:30 e speriamo, non aprirò uno short")
-                    logging.info(wait_time)
-                    time.sleep(wait_time)
-                    self.cancel_orders()
-                    time.sleep(2)
+                logging.info(f"la posizione non era ancora chiusa, aspettiamo le 15:30 e speriamo, non aprirò uno short")
+                self.telegram_bot_sendtext(f"la posizione non era ancora chiusa, aspettiamo le 15:30 e speriamo, non aprirò uno short")
+                self.sleep_until(first_afternoon)
+                
+                self.cancel_orders()
+                time.sleep(2)
 
-                    self.close_price = float(self.get_stock_price(self.stock_to_buy))
-                    limit_price= self.close_price*0.98
-                    rounded_limit_price = round(limit_price, 2)
-                    self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
-                    time.sleep(10)
-                    logging.info(f"Chiudendo la posizione di {self.stock_to_buy} a ${self.close_price:.2f},lo short non è stato aperto")
-                    self.telegram_bot_sendtext(f"Chiudendo la posizione di {self.stock_to_buy} a ${self.close_price:.2f},lo short non è stato aperto")
+                self.close_price = float(self.get_stock_price(self.stock_to_buy))
+                limit_price= self.close_price*0.98
+                rounded_limit_price = round(limit_price, 2)
+                self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
+                time.sleep(10)
+                logging.info(f"Chiudendo la posizione di {self.stock_to_buy} a ${self.close_price:.2f},lo short non è stato aperto")                    
+                self.telegram_bot_sendtext(f"Chiudendo la posizione di {self.stock_to_buy} a ${self.close_price:.2f},lo short non è stato aperto")
 
             elif self.is_position_closed and self.is_short_open:
                 sell_time = self.get_next_time(hour=15, minute=32)
-                wait_time = (
-                    sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
-                logging.info(str(wait_time))
-                if wait_time > 0:
-                    time.sleep(wait_time)
-
+                self.sleep_until(sell_time)
                 asyncio.run(self.run_short_selling(self.stock_to_buy,self.last_price,shares_bought))
                 logging.info(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
                 self.telegram_bot_sendtext(f"comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.close_price:.2f} alle {sell_time}")
@@ -555,24 +519,11 @@ class DividendTradingSimulator:
             next_time += datetime.timedelta(days=1)
         return next_time
 
-    def get_next_sell_time(self):
-        if True: #self.has_pre == True:
-            return self.get_next_time(hour=10, minute=0)
-        #else:
-            #return self.get_next_time(hour=15, minute=30)
-
     def sleep_until(self, target_time):
         now = datetime.datetime.now(self.italy_tz)
         wait_time = (target_time - now).total_seconds()
         if wait_time > 0:
             time.sleep(wait_time)
-
-    def sleep_until_next_day(self):
-        now = datetime.datetime.now(self.italy_tz)
-        next_day = now + datetime.timedelta(days=1)
-        next_day_start = next_day.replace(
-            hour=0, minute=0, second=0, microsecond=0)
-        self.sleep_until(next_day_start)
 
     def telegram_bot_sendtext(self, messages):
         send_text = "https://api.telegram.org/bot"+self.TELEGRAM_BOT_TOKEN + \

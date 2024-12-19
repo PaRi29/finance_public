@@ -52,12 +52,7 @@ class DividendTradingSimulator:
     def run_simulation(self):
         while self.current_simulation_day < self.simulation_days:
             start_time = self.get_next_time(hour=20, minute=30)
-                
-            wait_time = (start_time - datetime.datetime.now(self.italy_tz)).total_seconds()
-
-            if wait_time > 0:
-                time.sleep(wait_time)
-                time.sleep(3)
+            self.sleep_until(start_time)
 
             logging.info(f"Giorno {self.current_simulation_day + 1}")
             self.telegram_bot_sendtext(f"Giorno {self.current_simulation_day + 1}")
@@ -89,87 +84,56 @@ class DividendTradingSimulator:
 
             self.stock_to_sell, price_, self.dividend_per_action, self.has_pre = stock_info
             close_market_time=self.get_next_time(hour=1, minute=59)
-            wait_time = (close_market_time - datetime.datetime.now(self.italy_tz)).total_seconds()
-            if wait_time > 0:
-                logging.info(f"In attesa fino alle {close_market_time} per reperire l'ultimo prezzo...")
-                time.sleep(wait_time)
-            self.sell_price = float(self.get_stock_price(self.stock_to_sell))
+            self.sleep_until(close_market_time)
 
-            self.telegram_bot_sendtext(self.sell_price)
-            logging.info(f"{self.stock_to_sell}, {self.sell_price}, {self.dividend_per_action}, {self.has_pre}")
+            self.last_price = float(self.get_stock_price(self.stock_to_sell))
 
+            self.telegram_bot_sendtext(self.last_price)
+            logging.info(f"{self.stock_to_sell}, {self.last_price}, {self.dividend_per_action}, {self.has_pre}")
 
             if datetime.datetime.now(self.italy_tz).weekday() != 5: 
                 sell_time = self.get_next_time(hour=10, minute=0)
-                wait_time = (sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
             elif datetime.datetime.now(self.italy_tz).weekday() == 5: 
                 sell_time = self.get_next_time(hour=10, minute=0) + datetime.timedelta(days=2)
-                wait_time = (sell_time - datetime.datetime.now(self.italy_tz)).total_seconds()
 
-            if wait_time > 0:
-                logging.info(f"In attesa fino alle {sell_time} per la vendita...")
-                time.sleep(wait_time)
+            logging.info(f"In attesa fino alle {sell_time} per la vendita...")
+            self.sleep_until(sell_time)
 
-  
-            attempts = 0  # Contatore per i tentativi
-            success = False  # Flag per il successo della vendita
-            diminuendo= 1.2                
-
-            while attempts < 3 and not success:  # Prova fino a 3 volte
-                self.cancel_orders()
-                if datetime.datetime.now(self.italy_tz).hour >= 13 and datetime.datetime.now(self.italy_tz).minute >= 25:
-                    logging.info("Orario limite superato (13:25), interrompendo i tentativi di vendita")
+            
+            no_hope_time = self.get_next_time(hour=10, minute=59)
+            while datetime.datetime.now(self.italy_tz) < no_hope_time:
+                if self.is_easy_to_short(self.stock_to_sell):
                     break
-                
-                
-                shares_sold = self.budget // (self.sell_price)
-                limit_price = self.sell_price - diminuendo * (self.dividend_per_action / self.sell_price)
+                time.sleep(0.35)
 
-                self.telegram_bot_sendtext(limit_price)
-                rounded_limit_price = round(limit_price, 2)
-                logging.info(f"Tentativo {attempts + 1}: Vendita di {shares_sold} azioni a ${rounded_limit_price:.2f}")
-                
-                no_hope_time = datetime.datetime.now(self.italy_tz) + datetime.timedelta(minutes=54)
-                # Controlla se è shortabile con un limite di tempo
-                while datetime.datetime.now(self.italy_tz) < no_hope_time:
-                    if self.is_easy_to_short(self.stock_to_sell):
-                        break
-                    time.sleep(0.35)
+            try:
+                self.sell_price = float(self.get_stock_price(self.stock_to_buy))
+            except:
+                self.sell_price = 10
 
-                try:
-                    q_ = self.short_sell_pre_hours(self.stock_to_sell, shares_sold, rounded_limit_price)
-                    if q_:
-                        self.filled_price = float(q_)
-                        success = True  # Vendita riuscita
-                    else:
-                        logging.info("Vendita allo scoperto non riuscita, riprovando fra 5 minuti...")
-                        time.sleep(300)  # Dorme 5 minuti
-                        attempts += 1
-                        diminuendo += 0.3
+            shares_sold = self.budget // (self.sell_price)
+            limit_price= self.sell_price*0.99
+            rounded_limit_price = round(limit_price, 2)
 
-                except Exception as e:
-                    logging.info(f"Errore durante la vendita allo scoperto: {e}")
-                    logging.info("Riprovando fra 5 minuti...")
-                    time.sleep(300)  # Dorme 5 minuti
-                    attempts += 1
-                    diminuendo += 0.3
-
-            if not success:  # Se dopo 3 tentativi non è riuscito
-                logging.info("saltando il giorno")
+            q_ = self.short_sell_pre_hours(self.stock_to_sell, shares_sold, rounded_limit_price)
+            if q_:
+                self.filled_price = float(q_)
+            else:
                 self.telegram_bot_sendtext("la vendita allo scoperto giornaliera non ha funzionato")
                 self.current_simulation_day += 1
                 logging.info("sleeping poche hours")
-                time.sleep(60*10)
+                time.sleep(60*60*3)
                 continue
-            
-            
+
             logging.info(f"vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.filled_price:.2f} alle {sell_time}")
             self.telegram_bot_sendtext(f"Vendendo {shares_sold} azioni di {self.stock_to_sell} a ${self.filled_price:.2f} alle {sell_time}")
 
             target_time = self.get_next_time(hour=15, minute=32)#in ogni caso dorme fino alle 15:30 tanto lo short è già iniziato 
             self.sleep_until(target_time)
+
+
             logging.info(f"In attesa fino alle {target_time} per la vendita...")
-            asyncio.run(self.run_short_selling(self.stock_to_sell,self.filled_price,shares_sold))
+            asyncio.run(self.run_short_selling(self.stock_to_sell,self.last_price,shares_sold))
 
             logging.info(f"comprando {shares_sold} azioni di {self.stock_to_sell} a ${self.buy_price:.2f} alle {sell_time}")
             self.telegram_bot_sendtext(f"comprando {shares_sold} azioni di {self.stock_to_sell} a ${self.buy_price:.2f} alle {sell_time}")
@@ -179,14 +143,13 @@ class DividendTradingSimulator:
             prev_budget=self.budget
 
             self.budget = float(self.ALPACA_API.get_account().equity)- 2000
-
             profit_loss= self.budget-prev_budget
 
             transaction = {
                 "day": self.current_simulation_day,
                 "stock": self.stock_to_sell,
                 "shares": shares_sold,
-                "sell_price": self.sell_price,
+                "sell_price": self.filled_price,
                 "buy_price": self.buy_price,
                 "profit_loss": profit_loss,
                 "budget": self.budget,
@@ -433,6 +396,7 @@ class DividendTradingSimulator:
         except: 
             pass
         return stock_name, stock_info['Price'], stock_info['Yield Price'], stock_info['Has Pre']
+    
     def get_next_time(self, hour, minute):
         now = datetime.datetime.now(self.italy_tz)
         next_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
@@ -449,45 +413,16 @@ class DividendTradingSimulator:
                 return False
         except:
             return False
-        
-    def get_next_sell_time(self):
-        if self.has_pre == True:
-            return self.get_next_time(hour=10, minute=0)
-        else:
-            return self.get_next_time(hour=15, minute=30)
-    
+            
     def sleep_until(self, target_time):
         now = datetime.datetime.now(self.italy_tz)
         wait_time = (target_time - now).total_seconds()
         if wait_time > 0:
             time.sleep(wait_time)
 
-    def sleep_until_next_day(self):
-        now = datetime.datetime.now(self.italy_tz)
-        next_day = now + datetime.timedelta(days=1)
-        next_day_start = next_day.replace(hour=0, minute=0, second=0, microsecond=0)
-        self.sleep_until(next_day_start)
-
     def telegram_bot_sendtext(self, messages):
         send_text = "https://api.telegram.org/bot"+self.TELEGRAM_BOT_TOKEN+"/sendMessage?chat_id="+self.TELEGRAM_CHAT_ID+"&text={}".format(str(messages))
         requests.get(send_text)
-
-    def short_stock(self, symbol, qty):
-        try:
-            order = self.ALPACA_API.submit_order(
-                symbol=symbol,
-                qty=qty,
-                side='sell',
-                type='market',
-                time_in_force='gtc'
-            )
-            logging.info(f"Short di {qty} azioni di {symbol} effettuato con successo.")
-            stock_price = order.filled_avg_price  # Assuming this retrieves the average price at which the order was filled
-            return stock_price, qty
-        except Exception as e:
-            logging.info(f"Errore durante l'operazione di short selling: {e}")
-            self.telegram_bot_sendtext(f"Errore durante l'operazione di short selling: {e}")
-            return None
         
     def short_sell_pre_hours(self, symbol, qty, limit_price_short):
         # Place the short sell order after hours
@@ -511,18 +446,6 @@ class DividendTradingSimulator:
 
         logging.info("Failed to fill short sell order within the time limit.")
         return False
-
-    def cancel_orders(self):
-        # This method simulates deleting all not filled orders
-        try:
-            open_orders = self.ALPACA_API.list_orders(status='open')
-            for order in open_orders:
-                self.ALPACA_API.cancel_order(order.id)
-                logging.info(f"Cancelled order ID: {order.id}")
-            return "All not filled orders deleted."
-        except Exception as e:
-            logging.error(f"Error deleting not filled orders: {e}")
-            return f"Error deleting not filled orders: {e}"
 
 
 if __name__ == "__main__":
