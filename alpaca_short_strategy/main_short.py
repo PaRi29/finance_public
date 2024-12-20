@@ -52,8 +52,9 @@ class DividendTradingSimulator:
     def run_simulation(self):
         while self.current_simulation_day < self.simulation_days:
             start_time = self.get_next_time(hour=20, minute=30)
+            self.telegram_bot_sendtext("start_test")
+            
             self.sleep_until(start_time)
-
             logging.info(f"Giorno {self.current_simulation_day + 1}")
             self.telegram_bot_sendtext(f"Giorno {self.current_simulation_day + 1}")
 
