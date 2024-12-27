@@ -20,31 +20,37 @@ class ProcessMonitor:
             "&text={}".format(str(message))
         requests.get(send_text)
 
-    def is_process_running(self, process_name):
+    def is_process_running(self, script_name):
         """
-        Check if a process with the given name is running.
+        Check if a process with the given script name is running.
         """
         try:
+            # Use `pgrep` to check for the script name
             result = subprocess.run(
-                ["pgrep", "-fl", process_name],
+                ["pgrep", "-fl", script_name],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True
             )
-            return process_name in result.stdout
+            # Check if the script name is in the process list
+            for line in result.stdout.splitlines():
+                if script_name in line:
+                    return True
+            return False
         except Exception as e:
             print(f"Error checking process: {e}")
             return False
-    def monitor_processes(self, processes_to_monitor):
+
+    def monitor_processes(self, scripts_to_monitor):
         """
         Continuously monitor the specified processes.
         """
         while True:
             all_running = True
-            for process_name in processes_to_monitor:
-                if not self.is_process_running(process_name):
+            for script_name in scripts_to_monitor:
+                if not self.is_process_running(script_name):
                     all_running = False
-                    alert_message = f"Alert: Process {process_name} is not running!"
+                    alert_message = f"Alert: Process {script_name} is not running!"
                     print(f"{time.ctime()}: {alert_message}")
                     self.telegram_bot_sendtext(alert_message)
                     break  # Exit the loop to avoid multiple alerts in the same hour
@@ -57,17 +63,18 @@ class ProcessMonitor:
                 time.sleep(60)  # Sleep for 1 minute if all processes are fine
 
 
+
 if __name__ == "__main__":
     # Replace with your Telegram bot token and chat ID
     load_dotenv()
 
     TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
     TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-    PROCESSES_TO_MONITOR = [
-        "../alpaca_dividend_strategy/main_dividend.py",
-        "../alpaca_option_strategy/option_research.py"
+    SCRIPTS_TO_MONITOR = [
+        "main_dividend.py",
+        "option_research.py"
     ]
 
     logging.basicConfig(filename='status_checker.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     monitor = ProcessMonitor(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
-    monitor.monitor_processes(PROCESSES_TO_MONITOR)
+    monitor.monitor_processes(SCRIPTS_TO_MONITOR)
