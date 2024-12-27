@@ -89,7 +89,7 @@ if __name__ == "__main__":
     )
 
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        print("Error: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set in the environment.")
+        logging.info("Error: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set in the environment.")
         exit(1)
 
     monitor = ProcessMonitor(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
