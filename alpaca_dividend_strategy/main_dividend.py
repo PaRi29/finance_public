@@ -169,6 +169,7 @@ class DividendTradingSimulator:
                 monday_morning = self.get_next_time(hour=10, minute=0) + datetime.timedelta(days=2)
                 self.sleep_until(monday_morning)
 
+
                 no_hope_time = self.get_next_time(hour=10, minute=59)
                 while datetime.datetime.now(self.italy_tz) < no_hope_time:
                     if self.is_easy_to_short(self.stock_to_buy):
@@ -187,7 +188,11 @@ class DividendTradingSimulator:
                 self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
                 time.sleep(2)
                 if self.is_position_closed:
-                    self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    try:
+                        self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    except:
+                        self.is_short_open = False
+
                 else:
                     self.is_short_open = False
 
@@ -213,7 +218,10 @@ class DividendTradingSimulator:
                 self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
                 time.sleep(2)
                 if self.is_position_closed:
-                    self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    try:
+                        self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                    except:
+                        self.is_short_open = False
                 else:
                     self.is_short_open= False
 
@@ -378,6 +386,7 @@ class DividendTradingSimulator:
         stop_gain = -0.5 * self.dividend_per_action / initial_price
         stop_loss = 0.01
         market_close_time = datetime.time(18, 50)
+        logging.info("last closing price: "+str(initial_price)+ " stop gain: "+str(stop_gain), +" stop loss: "+str(stop_loss))
 
         while not self.stop_simulation:
             current_time = datetime.datetime.now(self.italy_tz).time()
