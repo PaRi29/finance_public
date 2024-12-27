@@ -102,10 +102,18 @@ class DividendTradingSimulator:
 
             
             no_hope_time = self.get_next_time(hour=10, minute=59)
+            proceed_to_short = False
             while datetime.datetime.now(self.italy_tz) < no_hope_time:
                 if self.is_easy_to_short(self.stock_to_sell):
+                    proceed_to_short = True
                     break
                 time.sleep(0.35)
+            if not proceed_to_short:
+                self.telegram_bot_sendtext("la stock non era shortabile")
+                self.current_simulation_day += 1
+                logging.info("sleeping poche hours")
+                time.sleep(60*60*3)
+                continue
 
             try:
                 self.sell_price = float(self.get_stock_price(self.stock_to_buy))
@@ -116,7 +124,15 @@ class DividendTradingSimulator:
             limit_price= self.sell_price*0.99
             rounded_limit_price = round(limit_price, 2)
 
-            q_ = self.short_sell_pre_hours(self.stock_to_sell, shares_sold, rounded_limit_price)
+            try:
+                q_ = self.short_sell_pre_hours(self.stock_to_sell, shares_sold, rounded_limit_price)
+            except Exception as e:
+                self.telegram_bot_sendtext("la vendita allo scoperto giornaliera non ha funzionato, errore: "+str(e))
+                self.current_simulation_day += 1
+                logging.info("sleeping poche hours")
+                time.sleep(60*60*3)
+                continue
+
             if q_:
                 self.filled_price = float(q_)
             else:
@@ -250,7 +266,7 @@ class DividendTradingSimulator:
         stop_gain = -0.9 * self.dividend_per_action / self.sell_price
         stop_loss = 0.01
         market_close_time = datetime.time(21, 50)
-
+        logging.info("last closing price: "+str(initial_price)+ " stop gain: "+str(stop_gain), +" stop loss: "+str(stop_loss))
         while not self.stop_simulation:
             current_time = datetime.datetime.now(self.italy_tz).time()
 
