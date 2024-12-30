@@ -27,7 +27,7 @@ from google.protobuf import descriptor_pool, message_factory, descriptor_pb2
 class DividendTradingSimulator:
     def __init__(self, initial_budget=1000, simulation_days=30, commission=1.0, short_borrow_rate=0.003):
         self.ALPACA_API=tradeapi.REST(ALPACA_API_KEY, API_SECRET, ALPACA_ENDPOINT, api_version='v2')  
-        self.budget = float(self.ALPACA_API.get_account().equity)- 24771
+        self.budget = float(self.ALPACA_API.get_account().equity)- 25000
         logging.info(self.budget)
         self.dividend_balance = 0
         self.simulation_days = simulation_days
@@ -162,27 +162,23 @@ class DividendTradingSimulator:
             try:
                 self.last_price = float(self.get_stock_price(self.stock_to_buy))
             except: 
-                self.last_price = 100
+                self.last_price = self.open_price
 
 
             if datetime.datetime.now(self.italy_tz).weekday() == 5:  # sabato mattina 1:50 
                 monday_morning = self.get_next_time(hour=10, minute=0) + datetime.timedelta(days=2)
                 self.sleep_until(monday_morning)
-
-
                 no_hope_time = self.get_next_time(hour=10, minute=59)
                 while datetime.datetime.now(self.italy_tz) < no_hope_time:
                     if self.is_easy_to_short(self.stock_to_buy):
                         break
                     time.sleep(0.5)
-
                 try:
                     self.open_price = float(self.get_stock_price(self.stock_to_buy))
                 except:
-                    self.open_price = 10
-
+                    self.open_price = 10000
                 shares_bought = self.budget // (self.open_price)
-                limit_price= self.open_price*0.98
+                limit_price = self.open_price*0.98
                 rounded_limit_price = round(limit_price, 2)
 
                 self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
@@ -192,9 +188,9 @@ class DividendTradingSimulator:
                         self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
                     except:
                         self.is_short_open = False
-
                 else:
                     self.is_short_open = False
+
 
             else:  # Altri giorni della settimana
                 next_morning = self.get_next_time(hour=10, minute=0)
@@ -205,16 +201,14 @@ class DividendTradingSimulator:
                     if self.is_easy_to_short(self.stock_to_buy):
                         break
                     time.sleep(0.5)
-
                 try:
                     self.open_price = float(self.get_stock_price(self.stock_to_buy))
                 except:
-                    self.open_price = 10
+                    self.open_price = 10000
+
                 shares_bought = self.budget // (self.open_price)
                 limit_price= self.open_price*0.98
                 rounded_limit_price = round(limit_price, 2)
-
-
                 self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
                 time.sleep(2)
                 if self.is_position_closed:
@@ -227,19 +221,22 @@ class DividendTradingSimulator:
 
             time.sleep(60)     
             if not self.is_position_closed:
-                first_afternoon= self.get_next_time(hour=15, minute=30)
                 logging.info(f"la posizione non era ancora chiusa, aspettiamo le 15:30 e speriamo, non aprirò uno short")
                 self.telegram_bot_sendtext(f"la posizione non era ancora chiusa, aspettiamo le 15:30 e speriamo, non aprirò uno short")
+                first_afternoon = self.get_next_time(hour=15, minute=29)
                 self.sleep_until(first_afternoon)
-                
-                self.cancel_orders()
-                time.sleep(2)
+                has_open_positions = bool(self.ALPACA_API.list_positions())
+                if has_open_positions :
+                    self.cancel_orders()
+                    self.sleep_until(self.get_next_time(hour=15, minute=30))
+                    self.close_price = float(self.get_stock_price(self.stock_to_buy))
+                    limit_price= self.close_price*0.98
+                    rounded_limit_price = round(limit_price, 2)
+                    self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
+                    time.sleep(10)
+                else:
+                    self.close_price = rounded_limit_price
 
-                self.close_price = float(self.get_stock_price(self.stock_to_buy))
-                limit_price= self.close_price*0.98
-                rounded_limit_price = round(limit_price, 2)
-                self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
-                time.sleep(10)
                 logging.info(f"Chiudendo la posizione di {self.stock_to_buy} a ${self.close_price:.2f},lo short non è stato aperto")                    
                 self.telegram_bot_sendtext(f"Chiudendo la posizione di {self.stock_to_buy} a ${self.close_price:.2f},lo short non è stato aperto")
 
@@ -258,7 +255,7 @@ class DividendTradingSimulator:
             self.dividend_balance += net_dividend
 
             prev_budget=self.budget
-            self.budget = float(self.ALPACA_API.get_account().equity)- 24771
+            self.budget = float(self.ALPACA_API.get_account().equity)- 25000
             profit_loss= self.budget-prev_budget
 
             transaction = {

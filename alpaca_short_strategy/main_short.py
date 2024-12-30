@@ -87,8 +87,14 @@ class DividendTradingSimulator:
             close_market_time=self.get_next_time(hour=1, minute=59)
             self.sleep_until(close_market_time)
 
-            self.last_price = float(self.get_stock_price(self.stock_to_sell))
-
+            try:
+                self.last_price = float(self.get_stock_price(self.stock_to_sell))
+            except:
+                self.telegram_bot_sendtext("il prezzo non era reperibile")
+                self.current_simulation_day += 1
+                time.sleep(60*60*10)
+                continue
+ 
             self.telegram_bot_sendtext(self.last_price)
             logging.info(f"{self.stock_to_sell}, {self.last_price}, {self.dividend_per_action}, {self.has_pre}")
 
@@ -118,7 +124,10 @@ class DividendTradingSimulator:
             try:
                 self.sell_price = float(self.get_stock_price(self.stock_to_buy))
             except:
-                self.sell_price = 10
+                self.telegram_bot_sendtext("il prezzo non era reperibile")
+                self.current_simulation_day += 1
+                time.sleep(60*60*3)
+                continue
 
             shares_sold = self.budget // (self.sell_price)
             limit_price= self.sell_price*0.99
@@ -266,7 +275,7 @@ class DividendTradingSimulator:
         stop_gain = -0.9 * self.dividend_per_action / self.sell_price
         stop_loss = 0.01
         market_close_time = datetime.time(21, 50)
-        logging.info("last closing price: "+str(initial_price)+ " stop gain: "+str(stop_gain), +" stop loss: "+str(stop_loss))
+        logging.info("last closing price: "+str(initial_price)+ " stop gain: "+str(stop_gain) +" stop loss: "+str(stop_loss))
         while not self.stop_simulation:
             current_time = datetime.datetime.now(self.italy_tz).time()
 
