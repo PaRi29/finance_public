@@ -79,7 +79,7 @@ if __name__ == "__main__":
     TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
     SCRIPTS_TO_MONITOR = [
         "main_dividend.py",
-        "option_research.py"
+        "main_short.py"
     ]
 
     logging.basicConfig(
