@@ -165,7 +165,8 @@ class DividendTradingSimulator:
                 self.last_price = self.open_price
 
 
-            if datetime.datetime.now(self.italy_tz).weekday() == 5:  # sabato mattina 1:50 
+            if datetime.datetime.now(self.italy_tz).weekday() == 5:  # sabato mattina 1:50
+                
                 monday_morning = self.get_next_time(hour=10, minute=0) + datetime.timedelta(days=2)
                 self.sleep_until(monday_morning)
                 no_hope_time = self.get_next_time(hour=10, minute=59)

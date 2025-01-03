@@ -120,9 +120,9 @@ class DividendTradingSimulator:
                 logging.info("sleeping poche hours")
                 time.sleep(60*60*3)
                 continue
-
+            
             try:
-                self.sell_price = float(self.get_stock_price(self.stock_to_buy))
+                self.sell_price = float(self.get_stock_price(self.stock_to_sell))
             except:
                 self.telegram_bot_sendtext("il prezzo non era reperibile")
                 self.current_simulation_day += 1
