@@ -117,7 +117,7 @@ class DividendTradingSimulator:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
-                loop.run_until_complete(self.get_first_price_wrapper(self.stock_to_buy))
+                loop.run_until_complete(self.get_first_price_wrapper(self.stock_to_sell))
             finally:
                 loop.close()
             logging.info(f"First price received: {self.sell_price}")
