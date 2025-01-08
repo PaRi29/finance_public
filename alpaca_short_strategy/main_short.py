@@ -122,6 +122,12 @@ class DividendTradingSimulator:
                 loop.close()
             logging.info(f"First price received: {self.sell_price}")
 
+            if self.sell_price==None:
+                self.telegram_bot_sendtext("prezzo non reperito, vendita allo scoperto saltata")
+                self.current_simulation_day += 1
+                logging.info("sleeping poche hours")
+                time.sleep(60*60*3)
+                continue
 
             no_hope_time = self.get_next_time(hour=11, minute=59)
             proceed_to_short = False
