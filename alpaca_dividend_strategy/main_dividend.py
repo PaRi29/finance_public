@@ -54,6 +54,7 @@ class DividendTradingSimulator:
         self.stop_simulation = False  # Flag to stop the simulation
         self.pricing_data_message = self.create_pricing_data_message()
         self.price_queue = asyncio.Queue()  # Queue for price updates
+        self.start= True
 
     def run_simulation(self):
         while self.current_simulation_day < self.simulation_days:
@@ -61,6 +62,11 @@ class DividendTradingSimulator:
             self.is_short_open=False
 
             start_time = self.get_next_time(hour=20, minute=30)
+
+            if self.start:
+                self.start= False
+                start_time = self.get_next_time(hour=21, minute=57)
+                
             self.sleep_until(start_time)
 
             logging.info(f"Giorno {self.current_simulation_day + 1}")
@@ -599,33 +605,49 @@ class DividendTradingSimulator:
 
         Parameters:
         - symbol (str): The stock ticker symbol to close.
-        - qty (int): The number of shares to sell.
         - limit_price_sell (float): The limit price to close the buy position.
 
         Returns:
         - (bool): True if the sell order is filled, False otherwise.
         """
-        qty=self.ALPACA_API.list_positions()[0].qty_available
-        sell_order = self.ALPACA_API.submit_order(
-            symbol=symbol,
-            qty=qty,
-            side='sell',          # Close position by selling
-            type='limit',         # Limit order type
-            limit_price=limit_price_sell,
-            time_in_force='day',  # Day order for extended hours
-            extended_hours=True   # Allows after-hours trading
-        )
-        sell_order_id = sell_order.id
-        # Wait and check if the sell order is filled
-        for _ in range(5500):  # Check every second for up to 60 seconds
-            if self.is_order_filled(sell_order_id):
-                logging.info("Buy position closed successfully.")
-                return True
-            time.sleep(1)
+        try:
+            # Retrieve positions
+            positions = self.ALPACA_API.list_positions()
+            qty = None
+            for position in positions:
+                if position.symbol == symbol:
+                    qty = int(position.qty)  # Convert string to integer
+                    break
 
-        logging.info("Failed to close buy position within the time limit.")
-        return False
-    
+            if qty is None:
+                logging.info(f"No position found for symbol: {symbol}")
+                return False
+
+            # Submit a sell order
+            sell_order = self.ALPACA_API.submit_order(
+                symbol=symbol,
+                qty=qty,
+                side='sell',          # Close position by selling
+                type='limit',         # Use limit order
+                limit_price=limit_price_sell,
+                time_in_force='gtc',  # Good-till-canceled for extended hours
+                extended_hours=True   # Allows after-hours trading
+            )
+            sell_order_id = sell_order.id
+
+            # Wait and check if the sell order is filled
+            for _ in range(5500):  # Check every second for up to 5500 seconds (~1.5 hours)
+                if self.is_order_filled(sell_order_id):
+                    logging.info(f"Buy position for {symbol} closed successfully.")
+                    return True
+                time.sleep(1)
+
+            logging.info(f"Failed to close buy position for {symbol} within the time limit.")
+            return False
+
+        except Exception as e:
+            logging.error(f"Error while closing buy position for {symbol}: {e}")
+            return False
 
     def short_sell_pre_hours(self, symbol, qty, limit_price_short):
         """

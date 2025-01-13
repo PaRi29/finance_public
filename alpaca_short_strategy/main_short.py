@@ -49,7 +49,8 @@ class DividendTradingSimulator:
         self.tax_rate = 0.27  # 27% tax rate
         self.filled_price = None
 
-        self.price_queue = asyncio.Queue()  # Queue for price updates
+        self.price_queue_short = None  # Queue for price updates
+        self.start= True
 
     def run_simulation(self):
         while self.current_simulation_day < self.simulation_days:
@@ -60,6 +61,9 @@ class DividendTradingSimulator:
             self.sell_price=0
             self.buy_price=0
 
+            if self.start:
+                self.start= False
+                start_time = self.get_next_time(hour=21, minute=57)
 
             self.sleep_until(start_time)
             logging.info(f"Giorno {self.current_simulation_day + 1}")
@@ -114,10 +118,11 @@ class DividendTradingSimulator:
             self.sleep_until(sell_time)
 
 
+            self.price_queue_short = asyncio.Queue()
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
-                loop.run_until_complete(self.get_first_price_wrapper(self.stock_to_sell))
+                loop.run_until_complete(self.get_first_price_wrapper_short(self.stock_to_sell))
             finally:
                 loop.close()
             logging.info(f"First price received: {self.sell_price}")
@@ -247,7 +252,7 @@ class DividendTradingSimulator:
 
 
 
-    async def connect_to_yahoo(self, symbol):
+    async def connect_to_yahoo_short(self, symbol):
         """Connect to Yahoo Finance WebSocket and update self.current_price with feed data."""
         BASE_URL = 'wss://streamer.finance.yahoo.com'
         while not self.stop_simulation:  # Loop to handle reconnections
@@ -262,7 +267,7 @@ class DividendTradingSimulator:
                         decoded_data = self.decode_protobuf_message(message)
                         if decoded_data and decoded_data.id == symbol:
                             self.current_price = decoded_data.price
-                            await self.price_queue.put(decoded_data.price)  # Push price to queue
+                            await self.price_queue_short.put(decoded_data.price)  # Push price to queue
                             logging.info(f"Current price for {symbol}: {self.current_price}")
 
             except websockets.exceptions.ConnectionClosed:
@@ -274,7 +279,7 @@ class DividendTradingSimulator:
                 await asyncio.sleep(60)  # Wait 1 minute before trying to reconnect
 
 
-    async def simulate_short_selling(self, symbol, initial_price, shares_sold):
+    async def simulate_short_selling_short(self, symbol, initial_price, shares_sold):
         """Simulate short selling monitoring stop loss, stop gain, or market close."""
         borrow_cost = shares_sold * initial_price * self.short_borrow_rate
         stop_gain = -0.9 * self.dividend_per_action / self.sell_price
@@ -364,17 +369,17 @@ class DividendTradingSimulator:
     async def run_short_selling(self, symbol, initial_price, shares_sold):
             """Run the WebSocket and short selling simulation concurrently."""
             await asyncio.gather(
-                self.connect_to_yahoo(symbol),  # Task to handle WebSocket data
-                self.simulate_short_selling(symbol, initial_price, shares_sold)  # Task to handle simulation logic
+                self.connect_to_yahoo_short(symbol),  # Task to handle WebSocket data
+                self.simulate_short_selling_short(symbol, initial_price, shares_sold)  # Task to handle simulation logic
             )
     
-    async def get_first_price_wrapper(self, symbol):
+    async def get_first_price_wrapper_short(self, symbol):
         """Wrapper to connect and get the first price with a timeout."""
-        websocket_task = asyncio.create_task(self.connect_to_yahoo(symbol))  # Start WebSocket connection
+        websocket_task = asyncio.create_task(self.connect_to_yahoo_short(symbol))  # Start WebSocket connection
         
         try:
             # Wait for the first price with a timeout of 20 minutes (1200 seconds)
-            self.sell_price = await asyncio.wait_for(self.price_queue.get(), timeout=1200)
+            self.sell_price = await asyncio.wait_for(self.price_queue_short.get(), timeout=1200)
         except asyncio.TimeoutError:
             print("No price data received within 20 minutes. Setting sell_price to NULL.")
             self.sell_price = None  # Set sell_price to NULL if timeout occurs
