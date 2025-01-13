@@ -54,7 +54,6 @@ class DividendTradingSimulator:
         self.stop_simulation = False  # Flag to stop the simulation
         self.pricing_data_message = self.create_pricing_data_message()
         self.price_queue = asyncio.Queue()  # Queue for price updates
-        self.start= True
 
     def run_simulation(self):
         while self.current_simulation_day < self.simulation_days:
@@ -62,11 +61,7 @@ class DividendTradingSimulator:
             self.is_short_open=False
 
             start_time = self.get_next_time(hour=20, minute=30)
-
-            if self.start:
-                self.start= False
-                start_time = self.get_next_time(hour=21, minute=57)
-                
+            
             self.sleep_until(start_time)
 
             logging.info(f"Giorno {self.current_simulation_day + 1}")
