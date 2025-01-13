@@ -56,6 +56,7 @@ class DividendTradingSimulator:
         while self.current_simulation_day < self.simulation_days:
             if self.start == True:
                 start_time=self.get_next_time(hour=22, minute=10)
+                self.start = False
             else:
                 start_time = self.get_next_time(hour=20, minute=30)
             self.telegram_bot_sendtext("start_test")
