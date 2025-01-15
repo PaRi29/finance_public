@@ -625,7 +625,7 @@ class DividendTradingSimulator:
                 side='sell',          # Close position by selling
                 type='limit',         # Use limit order
                 limit_price=limit_price_sell,
-                time_in_force='gtc',  # Good-till-canceled for extended hours
+                time_in_force='day',  # Good-till-canceled for extended hours
                 extended_hours=True   # Allows after-hours trading
             )
             sell_order_id = sell_order.id
