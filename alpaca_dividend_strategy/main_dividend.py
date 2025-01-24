@@ -53,7 +53,7 @@ class DividendTradingSimulator:
         self.is_short_open=False
         self.stop_simulation = False  # Flag to stop the simulation
         self.pricing_data_message = self.create_pricing_data_message()
-        self.price_queue = asyncio.Queue()  # Queue for price updates
+        self.price_queue = None  # Queue for price updates
 
     def run_simulation(self):
         while self.current_simulation_day < self.simulation_days:
@@ -170,6 +170,7 @@ class DividendTradingSimulator:
                 monday_morning = self.get_next_time(hour=9, minute=58) + datetime.timedelta(days=2)
                 self.sleep_until(monday_morning)
 
+                self.price_queue = asyncio.Queue()
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 try:
@@ -625,7 +626,7 @@ class DividendTradingSimulator:
                 side='sell',          # Close position by selling
                 type='limit',         # Use limit order
                 limit_price=limit_price_sell,
-                time_in_force='day',  # Good-till-canceled for extended hours
+                time_in_force='day',  # day for extended hours
                 extended_hours=True   # Allows after-hours trading
             )
             sell_order_id = sell_order.id
