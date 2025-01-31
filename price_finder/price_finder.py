@@ -4,16 +4,20 @@ import json
 import base64
 import logging
 import os
+import pytz
+import websocket
+import pandas as pd
+import re
 from datetime import datetime, timedelta
 from pytz import timezone
 from google.protobuf import descriptor_pb2, descriptor_pool, message_factory
-import websocket
 
-logging.basicConfig(level=logging.INFO)
-
+logging.basicConfig(filename='price_finder.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 class YahooFinanceWebSocket:
-    def __init__(self, symbol):
-        self.symbol = symbol
+    def __init__(self):
+        self.stock_data = pd.read_csv("stock_to_buy.csv")
+        self.date_number = (datetime.now(pytz.timezone('Europe/Rome'))).strftime('%b %d, %Y')
+        self.symbol = self.get_stock_info()
         self.current_price = None
         self.stop_simulation = False
         self.pricing_data_message = self.create_pricing_data_message()
@@ -129,6 +133,8 @@ class YahooFinanceWebSocket:
     def start(self):
         """Start the WebSocket client in a separate thread."""
         self.stop_simulation = False
+        if self.symbol is None:
+            return
         self.thread = threading.Thread(target=self.connect_to_yahoo)
         self.thread.start()
 
@@ -138,12 +144,26 @@ class YahooFinanceWebSocket:
         if self.thread.is_alive():
             self.thread.join()
 
+    def get_stock_info(self):
+        stock_info = self.stock_data[self.stock_data['Date']
+                                     == self.date_number]
+        if stock_info.empty:
+            return None
+        stock_info = stock_info.iloc[0]
+        stock_name = stock_info['Stock']
+        try:
+            stock_name = re.search(r'\((.*?)\)', stock_name).group(1)
+        except:
+            pass
+        return stock_name
+
+
     @staticmethod
     def wait_until_start():
         """Wait until 9:58 AM Italian time."""
         italy = timezone("Europe/Rome")
         now = datetime.now(italy)
-        start_time = now.replace(hour=17, minute=46, second=0, microsecond=0)
+        start_time = now.replace(hour=9, minute=58, second=0, microsecond=0)
         if now > start_time:
             start_time += timedelta(days=1)
         sleep_time = (start_time - now).total_seconds()
@@ -155,7 +175,7 @@ class YahooFinanceWebSocket:
         """Stop at 10:58 AM Italian time."""
         italy = timezone("Europe/Rome")
         now = datetime.now(italy)
-        stop_time = now.replace(hour=12, minute=20, second=0, microsecond=0)
+        stop_time = now.replace(hour=10, minute=58, second=0, microsecond=0)
         if now > stop_time:
             logging.info("Stop time already passed.")
             return True
@@ -166,15 +186,12 @@ class YahooFinanceWebSocket:
 
 
 if __name__ == "__main__":
-    symbol = "AAPL"
-    client = YahooFinanceWebSocket(symbol)
+    
+    client = YahooFinanceWebSocket()
 
     try:
-        # Wait until 9:58 AM Italian time
         YahooFinanceWebSocket.wait_until_start()
-        # Start the WebSocket client
         client.start()
-        # Stop at 10:58 AM Italian time
         YahooFinanceWebSocket.stop_at_end()
 
     finally:

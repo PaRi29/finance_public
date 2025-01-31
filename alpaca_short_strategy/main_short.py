@@ -20,26 +20,20 @@ from dotenv import load_dotenv
 
 
 class DividendTradingSimulator:
-    def __init__(self, ALPACA_API_KEY,API_SECRET,ALPACA_ENDPOINT, simulation_days=30, commission=0, short_borrow_rate=0.003):
+    def __init__(self, ALPACA_API_KEY,API_SECRET,ALPACA_ENDPOINT, simulation_days=30):
         self.ALPACA_API=tradeapi.REST(ALPACA_API_KEY, API_SECRET, ALPACA_ENDPOINT, api_version='v2')  
         self.budget = float(self.ALPACA_API.get_account().equity)- 2000
         logging.info(self.budget)
         self.simulation_days = simulation_days
         self.current_simulation_day = 0
-        self.transactions = []
         self.italy_tz = pytz.timezone('Europe/Rome')
         self.stock_to_sell = None
         self.sell_price=0
         self.buy_price=0
 
-        self.has_pre = True
         self.dividend_per_action = 0
         self.tomorrow_date_number = 0
         self.stock_data = pd.read_csv("stock_to_buy.csv")
-        self.commission = commission
-        self.short_borrow_rate = short_borrow_rate
-        self.short_commission = 0
-        self.short_close_commission = 0
         self.TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
         self.TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
@@ -48,6 +42,7 @@ class DividendTradingSimulator:
         self.stop_simulation = False  # Flag to stop the simulation
         self.tax_rate = 0.27  # 27% tax rate
         self.filled_price = None
+        
     def run_simulation(self):
         while self.current_simulation_day < self.simulation_days:
             start_time = self.get_next_time(hour=20, minute=30)
@@ -84,7 +79,7 @@ class DividendTradingSimulator:
                     self.current_simulation_day += 1
                     continue
 
-            self.stock_to_sell, price_, self.dividend_per_action, self.has_pre = stock_info
+            self.stock_to_sell, price_, self.dividend_per_action, has_pre_ = stock_info
             close_market_time=self.get_next_time(hour=1, minute=59)
             self.sleep_until(close_market_time)
 
@@ -96,8 +91,8 @@ class DividendTradingSimulator:
                 time.sleep(60*60*10)
                 continue
  
-            self.telegram_bot_sendtext(self.last_price)
-            logging.info(f"{self.stock_to_sell}, {self.last_price}, {self.dividend_per_action}, {self.has_pre}")
+            self.telegram_bot_sendtext(f"{self.stock_to_sell}, {self.last_price}, {self.dividend_per_action}, {has_pre_}")
+            logging.info(f"{self.stock_to_sell}, {self.last_price}, {self.dividend_per_action}, {has_pre_}")
 
 
             if datetime.datetime.now(self.italy_tz).weekday() != 5: 
@@ -277,7 +272,7 @@ class DividendTradingSimulator:
 
     async def simulate_short_selling_short(self, symbol, initial_price, shares_sold):
         """Simulate short selling monitoring stop loss, stop gain, or market close."""
-        borrow_cost = shares_sold * initial_price * self.short_borrow_rate
+        borrow_cost = shares_sold * initial_price * 0.003
         stop_gain = -0.9 * self.dividend_per_action / self.sell_price
         stop_loss = 0.01
         market_close_time = datetime.time(21, 50)
@@ -317,7 +312,7 @@ class DividendTradingSimulator:
         self.buy_price = self.current_price  # Usa il prezzo corrente per chiudere la posizione
         close_price=self.current_price*1.002
         self.close_position(symbol,close_price)
-        short_profit = (initial_price - self.buy_price) * shares_sold - borrow_cost - self.short_commission - self.short_close_commission
+        short_profit = (initial_price - self.buy_price) * shares_sold - borrow_cost
         # Applica tasse sui profitti
         if short_profit > 0:
             short_profit *= (1 - self.tax_rate)

@@ -2,7 +2,6 @@
 
 import datetime
 import requests
-import csv
 from pathlib import Path
 import time
 import pandas as pd
@@ -10,7 +9,6 @@ import pytz
 from dotenv import load_dotenv
 import os
 import yfinance as yf
-from bs4 import BeautifulSoup
 import re
 import logging
 import alpaca_trade_api as tradeapi
@@ -25,7 +23,7 @@ from google.protobuf import descriptor_pool, message_factory, descriptor_pb2
 
 
 class DividendTradingSimulator:
-    def __init__(self, initial_budget=1000, simulation_days=30, commission=1.0, short_borrow_rate=0.003):
+    def __init__(self, simulation_days=30 , short_borrow_rate=0.003):
         self.ALPACA_API=tradeapi.REST(ALPACA_API_KEY, API_SECRET, ALPACA_ENDPOINT, api_version='v2')  
         self.budget = float(self.ALPACA_API.get_account().equity)- 25000
         logging.info(self.budget)
@@ -116,11 +114,6 @@ class DividendTradingSimulator:
 
             self.stock_to_buy, price_, self.dividend_per_action, has_pre_ = stock_info
             
-            logging.info("Stock: %s, Price: %s, Dividend: %s, Has Pre: %s", 
-                          self.stock_to_buy, price_,
-                          self.dividend_per_action, has_pre_)
-
-
             buy_time = self.get_next_time(hour=21, minute=58)
             self.sleep_until(buy_time)
             self.open_price = float(self.get_stock_price(self.stock_to_buy))
@@ -135,7 +128,6 @@ class DividendTradingSimulator:
                 f"Comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.open_price:.2f} alle {buy_time}")
                 self.telegram_bot_sendtext(
                 f"Comprando {shares_bought} azioni di {self.stock_to_buy} a ${self.open_price:.2f} alle {buy_time}")
-
             else:
                 self.telegram_bot_sendtext(f"tenteativo di compera di {shares_bought} azioni di {self.stock_to_buy} non riuscito, attendo il giorno successivo")
                 time.sleep(60*60*10)
@@ -149,96 +141,57 @@ class DividendTradingSimulator:
             except: 
                 self.last_price = self.open_price
 
+            logging.info("Stock: %s, Price: %s, Dividend: %s, Has Pre: %s", 
+                          self.stock_to_buy, self.last_price,
+                          self.dividend_per_action, has_pre_)
+            self.telegram_bot_sendtext("Stock: %s, Price: %s, Dividend: %s, Has Pre: %s", 
+                          self.stock_to_buy, self.last_price,
+                          self.dividend_per_action, has_pre_)
 
 
             if datetime.datetime.now(self.italy_tz).weekday() == 5: 
-                monday_morning = self.get_next_time(hour=9, minute=58) + datetime.timedelta(days=2)
-                self.sleep_until(monday_morning)
-
-                start_time = datetime.datetime.now()
-                end_time = start_time + datetime.timedelta(minutes=50)
-                self.open_price = None  
-                prices_file_path = os.path.join(os.path.dirname(__file__), "..", "assets", "prices.json")
-                while datetime.datetime.now() < end_time:
-                    try:
-                        with open(prices_file_path, 'r') as f:
-                            data = json.load(f)
-                            price_info = data.get(self.stock_to_buy, {})
-                            self.open_price = price_info.get("price")
-                            if self.open_price is not None:
-                                break
-                    except Exception as e:
-                        pass
-                    time.sleep(0.1)
-                logging.info(f"First price received: {self.open_price}")
-
-
-                no_hope_time = self.get_next_time(hour=11, minute=59)
-                while datetime.datetime.now(self.italy_tz) < no_hope_time:
-                    if self.is_easy_to_short(self.stock_to_buy):
-                        break
-                    time.sleep(0.5)
-
-                if self.open_price == None:
-                    self.open_price = self.last_price
-
-                shares_bought = self.budget // (self.open_price)
-                limit_price = self.open_price*0.98
-                rounded_limit_price = round(limit_price, 2)
-
-                self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
-                time.sleep(2)
-                if self.is_position_closed:
-                    try:
-                        self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
-                    except:
-                        self.is_short_open = False
-                else:
-                    self.is_short_open = False
-
-
+                sell_time = self.get_next_time(hour=9, minute=58) + datetime.timedelta(days=2)
             else:  # Altri giorni della settimana
-                next_morning = self.get_next_time(hour=9, minute=58)
-                self.sleep_until(next_morning)
+                sell_time = self.get_next_time(hour=9, minute=58)
 
-                start_time = datetime.datetime.now()
-                end_time = start_time + datetime.timedelta(minutes=50)
-                self.open_price = None  
-                prices_file_path = os.path.join(os.path.dirname(__file__), "..", "assets", "prices.json")
-                while datetime.datetime.now() < end_time:
-                    try:
-                        with open(prices_file_path, 'r') as f:
-                            data = json.load(f)
-                            price_info = data.get(self.stock_to_buy, {})
-                            self.open_price = price_info.get("price")
-                            if self.open_price is not None:
-                                break
-                    except Exception as e:
-                        pass
-                    time.sleep(0.1)
-                logging.info(f"First price received: {self.open_price}")
+            self.sleep_until(sell_time)
+            start_time = datetime.datetime.now()
+            end_time = start_time + datetime.timedelta(minutes=50)
+            self.open_price = None  
+            prices_file_path = os.path.join(os.path.dirname(__file__), "..", "assets", "prices.json")
+            while datetime.datetime.now() < end_time:
+                try:
+                    with open(prices_file_path, 'r') as f:
+                        data = json.load(f)
+                        price_info = data.get(self.stock_to_buy, {})
+                        self.open_price = price_info.get("price")
+                        if self.open_price is not None:
+                            break
+                except Exception as e:
+                    pass
+                time.sleep(0.1)
+            logging.info(f"First price received: {self.open_price}")
+            no_hope_time = self.get_next_time(hour=11, minute=59)
+            while datetime.datetime.now(self.italy_tz) < no_hope_time:
+                if self.is_easy_to_short(self.stock_to_buy):
+                    break
+                time.sleep(0.5)
+            if self.open_price == None:
+                self.open_price = self.last_price
+            shares_bought = self.budget // (self.open_price)
+            limit_price = self.open_price*0.98
+            rounded_limit_price = round(limit_price, 2)
+            self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
+            time.sleep(2)
+            if self.is_position_closed:
+                try:
+                    self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
+                except:
+                    self.is_short_open = False
+            else:
+                self.is_short_open = False
 
-                no_hope_time = self.get_next_time(hour=11, minute=59)
-                while datetime.datetime.now(self.italy_tz) < no_hope_time:
-                    if self.is_easy_to_short(self.stock_to_buy):
-                        break
-                    time.sleep(0.5)
 
-                if self.open_price == None:
-                    self.open_price = self.last_price
-
-                shares_bought = self.budget // (self.open_price)
-                limit_price= self.open_price*0.98
-                rounded_limit_price = round(limit_price, 2)
-                self.is_position_closed = self.close_buy_position_pre_hours(self.stock_to_buy, rounded_limit_price)
-                time.sleep(2)
-                if self.is_position_closed:
-                    try:
-                        self.is_short_open = self.short_sell_pre_hours(self.stock_to_buy, shares_bought, rounded_limit_price)
-                    except:
-                        self.is_short_open = False
-                else:
-                    self.is_short_open= False
 
             time.sleep(60)     
             if not self.is_position_closed:
