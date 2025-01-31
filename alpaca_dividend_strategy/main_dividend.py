@@ -34,14 +34,10 @@ class DividendTradingSimulator:
         self.current_simulation_day = 0
         self.italy_tz = pytz.timezone('Europe/Rome')
         self.stock_to_buy = None
-        self.has_pre = True
         self.dividend_per_action = 0
         self.tomorrow_date_number = 0
         self.stock_data = pd.read_csv("stock_to_buy.csv")
-        self.commission = commission
         self.short_borrow_rate = short_borrow_rate
-        self.short_commission = 1.0
-        self.short_close_commission = 1.0
         self.TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
         self.TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
         self.tax_rate = 0.27  # 27% tax rate
@@ -53,7 +49,6 @@ class DividendTradingSimulator:
         self.is_short_open=False
         self.stop_simulation = False  # Flag to stop the simulation
         self.pricing_data_message = self.create_pricing_data_message()
-        self.price_queue = None  # Queue for price updates
 
     def run_simulation(self):
         while self.current_simulation_day < self.simulation_days:
@@ -119,31 +114,21 @@ class DividendTradingSimulator:
                     self.sleep_until(monday_morning)
 
 
-            self.stock_to_buy, price_, self.dividend_per_action, self.has_pre = stock_info
+            self.stock_to_buy, price_, self.dividend_per_action, has_pre_ = stock_info
             
             logging.info("Stock: %s, Price: %s, Dividend: %s, Has Pre: %s", 
                           self.stock_to_buy, price_,
-                          self.dividend_per_action, self.has_pre)
+                          self.dividend_per_action, has_pre_)
+
 
             buy_time = self.get_next_time(hour=21, minute=58)
             self.sleep_until(buy_time)
-
-
             self.open_price = float(self.get_stock_price(self.stock_to_buy))
-            print(self.open_price) 
             limit_price= self.open_price*1.003
             rounded_limit_price = round(limit_price, 2)
-            print(f"Budget: {self.budget}, Open Price: {self.open_price}")
-
             shares_bought = abs(self.budget // (self.open_price))
-            cost = shares_bought * self.open_price + self.commission  
-
-            print(shares_bought)
             status=self.alpaca_buy_intraday(self.stock_to_buy,shares_bought)
-
             self.current_simulation_day += 1
-            limit_price= self.open_price*0.98
-            rounded_limit_price = round(limit_price, 2)
 
             if status:
                 logging.info(
@@ -159,25 +144,34 @@ class DividendTradingSimulator:
 
             close_market_time=self.get_next_time(hour=1, minute=59)
             self.sleep_until(close_market_time)
-
             try:
                 self.last_price = float(self.get_stock_price(self.stock_to_buy))
             except: 
                 self.last_price = self.open_price
 
 
-            if datetime.datetime.now(self.italy_tz).weekday() == 5:  # sabato mattina 1:50
+
+            if datetime.datetime.now(self.italy_tz).weekday() == 5: 
                 monday_morning = self.get_next_time(hour=9, minute=58) + datetime.timedelta(days=2)
                 self.sleep_until(monday_morning)
 
-                self.price_queue = asyncio.Queue()
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    loop.run_until_complete(self.get_first_price_wrapper(self.stock_to_buy))
-                finally:
-                    loop.close()
+                start_time = datetime.datetime.now()
+                end_time = start_time + datetime.timedelta(minutes=50)
+                self.open_price = None  
+                prices_file_path = os.path.join(os.path.dirname(__file__), "..", "assets", "prices.json")
+                while datetime.datetime.now() < end_time:
+                    try:
+                        with open(prices_file_path, 'r') as f:
+                            data = json.load(f)
+                            price_info = data.get(self.stock_to_buy, {})
+                            self.open_price = price_info.get("price")
+                            if self.open_price is not None:
+                                break
+                    except Exception as e:
+                        pass
+                    time.sleep(0.1)
                 logging.info(f"First price received: {self.open_price}")
+
 
                 no_hope_time = self.get_next_time(hour=11, minute=59)
                 while datetime.datetime.now(self.italy_tz) < no_hope_time:
@@ -207,12 +201,21 @@ class DividendTradingSimulator:
                 next_morning = self.get_next_time(hour=9, minute=58)
                 self.sleep_until(next_morning)
 
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                try:
-                    loop.run_until_complete(self.get_first_price_wrapper(self.stock_to_buy))
-                finally:
-                    loop.close()
+                start_time = datetime.datetime.now()
+                end_time = start_time + datetime.timedelta(minutes=50)
+                self.open_price = None  
+                prices_file_path = os.path.join(os.path.dirname(__file__), "..", "assets", "prices.json")
+                while datetime.datetime.now() < end_time:
+                    try:
+                        with open(prices_file_path, 'r') as f:
+                            data = json.load(f)
+                            price_info = data.get(self.stock_to_buy, {})
+                            self.open_price = price_info.get("price")
+                            if self.open_price is not None:
+                                break
+                    except Exception as e:
+                        pass
+                    time.sleep(0.1)
                 logging.info(f"First price received: {self.open_price}")
 
                 no_hope_time = self.get_next_time(hour=11, minute=59)
@@ -371,7 +374,6 @@ class DividendTradingSimulator:
                         decoded_data = self.decode_protobuf_message(message)
                         if decoded_data and decoded_data.id == symbol:
                             self.current_price = decoded_data.price
-                            await self.price_queue.put(decoded_data.price)  # Push price to queue
                             logging.info(f"Current price for {symbol}: {self.current_price}")
 
             except websockets.exceptions.ConnectionClosed:
@@ -424,7 +426,7 @@ class DividendTradingSimulator:
         self.close_price = self.current_price  # Usa il prezzo corrente per chiudere la posizione
         self.close_position(symbol)
 
-        short_profit = (initial_price - self.close_price) * shares_sold - borrow_cost - self.short_commission - self.short_close_commission
+        short_profit = (initial_price - self.close_price) * shares_sold - borrow_cost - 1 - 1
 
         # Applica tasse sui profitti
         if short_profit > 0:
@@ -476,27 +478,6 @@ class DividendTradingSimulator:
                 self.connect_to_yahoo(symbol),  # Task to handle WebSocket data
                 self.simulate_short_selling(symbol, initial_price, shares_sold)  # Task to handle simulation logic
             )
-
-    async def get_first_price_wrapper(self, symbol):
-        """Wrapper to connect and get the first price with a timeout."""
-        websocket_task = asyncio.create_task(self.connect_to_yahoo(symbol))  # Start WebSocket connection
-        
-        try:
-            # Wait for the first price with a timeout of 20 minutes (1200 seconds)
-            self.open_price = await asyncio.wait_for(self.price_queue.get(), timeout=1200)
-        except asyncio.TimeoutError:
-            print("No price data received within 20 minutes. Setting sell_price to NULL.")
-            self.open_price = None  # Set sell_price to NULL if timeout occurs
-        finally:
-            websocket_task.cancel()  # Cancel the WebSocket task regardless of success or timeout
-            try:
-                await asyncio.wait_for(websocket_task, timeout=0.4)  # Wait briefly for cleanup
-            except asyncio.CancelledError:
-                print("WebSocket task was cancelled.")
-            except asyncio.TimeoutError:
-                print("WebSocket task timeout during cancellation.")
-            print("Connection closed.")
-
 
     def create_pricing_data_message(self):
         pool = descriptor_pool.Default()
@@ -584,16 +565,12 @@ class DividendTradingSimulator:
         sell_order_id = order.id
         
         for _ in range(3600):  # Check every second for up to 60 seconds
-            if self.is_order_filled(sell_order_id):
+            if self.ALPACA_API.get_order(sell_order_id).status == 'filled':
                 return True
             time.sleep(1)
         logging.info("Failed to buy within the time limit.")
         return False
 
-
-    def is_order_filled(self, order_id):
-        order = self.ALPACA_API.get_order(order_id)
-        return order.status == 'filled'
 
     def close_buy_position_pre_hours(self, symbol, limit_price_sell):
         """
@@ -633,7 +610,7 @@ class DividendTradingSimulator:
 
             # Wait and check if the sell order is filled
             for _ in range(5500):  # Check every second for up to 5500 seconds (~1.5 hours)
-                if self.is_order_filled(sell_order_id):
+                if self.ALPACA_API.get_order(sell_order_id).status == 'filled':
                     logging.info(f"Buy position for {symbol} closed successfully.")
                     return True
                 time.sleep(1)
@@ -671,7 +648,7 @@ class DividendTradingSimulator:
         short_order_id = short_order.id
         
         for _ in range(5500):  # Check every second for up to 60 seconds
-            if self.is_order_filled(short_order_id):
+            if self.ALPACA_API.get_order(short_order_id).status == 'filled':
                 logging.info("Short sell order filled successfully.")
                 return True
             time.sleep(1)

@@ -58,8 +58,8 @@ class YahooFinanceWebSocket:
             field.label = descriptor_pb2.FieldDescriptorProto.LABEL_OPTIONAL
 
         file_descriptor = pool.Add(file_descriptor_proto)
-        factory = message_factory.MessageFactory(pool)
-        return factory.GetPrototype(file_descriptor.message_types_by_name['PricingData'])
+        factory = message_factory.GetMessageClass(file_descriptor.message_types_by_name['PricingData'])
+        return factory
 
     def decode_protobuf_message(self, base64_message):
         try:
@@ -172,10 +172,8 @@ if __name__ == "__main__":
     try:
         # Wait until 9:58 AM Italian time
         YahooFinanceWebSocket.wait_until_start()
-
         # Start the WebSocket client
         client.start()
-
         # Stop at 10:58 AM Italian time
         YahooFinanceWebSocket.stop_at_end()
 
