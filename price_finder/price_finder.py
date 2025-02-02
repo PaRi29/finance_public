@@ -12,17 +12,21 @@ from datetime import datetime, timedelta
 from pytz import timezone
 from google.protobuf import descriptor_pb2, descriptor_pool, message_factory
 
-logging.basicConfig(filename='price_finder.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='price_finder.log', level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
 class YahooFinanceWebSocket:
     def __init__(self):
         self.stock_data = pd.read_csv("stock_to_buy.csv")
-        self.date_number = (datetime.now(pytz.timezone('Europe/Rome'))).strftime('%b %d, %Y')
+        self.date_number = datetime.now(pytz.timezone('Europe/Rome')).strftime('%b %d, %Y')
         self.symbol = self.get_stock_info()
         self.current_price = None
         self.stop_simulation = False
         self.pricing_data_message = self.create_pricing_data_message()
         self.file_path = os.path.join(os.path.dirname(__file__), "..", "assets", "prices.json")
         self._prepare_file()
+        self.thread = None
+        self.ws = None  # Will hold the WebSocketApp instance
 
     def _prepare_file(self):
         """Ensure the directory and clean the file for storing prices."""
@@ -117,14 +121,16 @@ class YahooFinanceWebSocket:
 
         while not self.stop_simulation:
             try:
-                ws = websocket.WebSocketApp(
+                # Create the WebSocket and store it in self.ws
+                self.ws = websocket.WebSocketApp(
                     BASE_URL,
                     on_message=on_message,
                     on_error=on_error,
                     on_close=on_close
                 )
-                ws.on_open = on_open
-                ws.run_forever()
+                self.ws.on_open = on_open
+                # Run the WebSocket loop. This call is blocking.
+                self.ws.run_forever()
             except Exception as e:
                 if not self.stop_simulation:
                     logging.exception(f"Error in WebSocket connection: {e}. Reconnecting in 10 seconds...")
@@ -134,6 +140,7 @@ class YahooFinanceWebSocket:
         """Start the WebSocket client in a separate thread."""
         self.stop_simulation = False
         if self.symbol is None:
+            logging.warning("No valid symbol found. The thread will not be started.")
             return
         self.thread = threading.Thread(target=self.connect_to_yahoo)
         self.thread.start()
@@ -141,22 +148,23 @@ class YahooFinanceWebSocket:
     def stop(self):
         """Stop the WebSocket client."""
         self.stop_simulation = True
-        if self.thread.is_alive():
+        # Force the WebSocket to close if it exists.
+        if self.ws is not None:
+            self.ws.close()
+        if self.thread is not None and self.thread.is_alive():
             self.thread.join()
 
     def get_stock_info(self):
-        stock_info = self.stock_data[self.stock_data['Date']
-                                     == self.date_number]
+        stock_info = self.stock_data[self.stock_data['Date'] == self.date_number]
         if stock_info.empty:
             return None
         stock_info = stock_info.iloc[0]
         stock_name = stock_info['Stock']
         try:
             stock_name = re.search(r'\((.*?)\)', stock_name).group(1)
-        except:
+        except Exception:
             pass
         return stock_name
-
 
     @staticmethod
     def wait_until_start():
@@ -167,33 +175,31 @@ class YahooFinanceWebSocket:
         if now > start_time:
             start_time += timedelta(days=1)
         sleep_time = (start_time - now).total_seconds()
-        logging.info(f"Waiting until 9:58 AM Italian time to start (sleeping for {sleep_time} seconds)...")
+        logging.info(f"Waiting until start time (sleeping for {sleep_time} seconds)...")
         time.sleep(sleep_time)
 
     @staticmethod
     def stop_at_end():
-        """Stop at 10:58 AM Italian time."""
+        """Stop at the designated end time."""
         italy = timezone("Europe/Rome")
         now = datetime.now(italy)
-        stop_time = now.replace(hour=10, minute=58, second=0, microsecond=0)
+        stop_time = now.replace(hour=11, minute=58, second=0, microsecond=0)
         if now > stop_time:
             logging.info("Stop time already passed.")
             return True
         sleep_time = (stop_time - now).total_seconds()
-        logging.info(f"Will stop at 10:58 AM Italian time (sleeping for {sleep_time} seconds)...")
+        logging.info(f"Will stop at end time (sleeping for {sleep_time} seconds)...")
         time.sleep(sleep_time)
         return True
 
 
 if __name__ == "__main__":
-    
     client = YahooFinanceWebSocket()
 
     try:
         YahooFinanceWebSocket.wait_until_start()
         client.start()
         YahooFinanceWebSocket.stop_at_end()
-
     finally:
         logging.info("Stopping the WebSocket client...")
         client.stop()
