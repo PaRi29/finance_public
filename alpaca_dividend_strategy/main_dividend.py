@@ -144,10 +144,8 @@ class DividendTradingSimulator:
             logging.info("Stock: %s, Price: %s, Dividend: %s, Has Pre: %s", 
                           self.stock_to_buy, self.last_price,
                           self.dividend_per_action, has_pre_)
-            self.telegram_bot_sendtext("Stock: %s, Price: %s, Dividend: %s, Has Pre: %s", 
-                          self.stock_to_buy, self.last_price,
-                          self.dividend_per_action, has_pre_)
-
+            msg= "Stock: %s, Price: %s, Dividend: %s, Has Pre: %s", self.stock_to_buy, self.last_price, self.dividend_per_action, has_pre_
+            self.telegram_bot_sendtext(str(msg))
 
             if datetime.datetime.now(self.italy_tz).weekday() == 5: 
                 sell_time = self.get_next_time(hour=9, minute=58) + datetime.timedelta(days=2)
