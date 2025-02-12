@@ -341,7 +341,7 @@ class DividendTradingSimulator:
         stop_gain = -0.5 * self.dividend_per_action / initial_price
         stop_loss = 0.01
         market_close_time = datetime.time(18, 50)
-        logging.info("last closing price: "+str(initial_price)+ " stop gain: "+str(stop_gain), +" stop loss: "+str(stop_loss))
+        logging.info("last closing price: "+str(initial_price)+ " stop gain: "+str(stop_gain) +" stop loss: "+str(stop_loss))
 
         while not self.stop_simulation:
             current_time = datetime.datetime.now(self.italy_tz).time()
